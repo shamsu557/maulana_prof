@@ -6,51 +6,41 @@
   <title>Admin Dashboard</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- Font Awesome for icons -->
-  <link rel="stylesheet" href="dashboard.css">
-    
+<link rel="stylesheet" href="admin-dashboard-style.css" />
 </head>
-<body>
+<body class="bg-light">
 
- <!-- First Navbar (Images and Admin Dashboard Text) -->
-<nav class="navbar navbar-light bg-dark fixed-top first-navbar">
-  <!-- Left image (Education Cap) -->
-  <img src="educap.jfif" alt="Education Cap" class="circular-img fixed-left-img">
-  
-  <!-- Navbar brand (Admin Dashboard text) centered -->
-  <span class="navbar-brand mx-auto text-white">Admin&nbsp;&nbsp;Dashboard</span>
-  
-  <!-- Right image (Professor) -->
-  <img src="prof.jpeg" alt="Professor" class="circular-img fixed-right-img">
-</nav>
+  <!-- Main Dashboard -->
+  <div id="main-dashboard" class="d-none">
+    <div class="d-flex">
+      <!-- Sidebar -->
+      <div class="sidebar text-white" style="width: 280px; min-height: 100vh; background: linear-gradient(180deg, #0d6efd 0%, #6f42c1 100%);">
+        <div class="p-4 d-flex flex-column h-100">
+          <div class="d-flex align-items-center mb-4">
+            <img src="placeholder-logo.png" alt="Logo" width="32" height="32" class="me-2 rounded-circle" />
+            <div>
+              <h5 class="mb-0 fw-bold">Admin Panel</h5>
+              <small class="opacity-75">Prof. Ibrahim Ahmad Maqari</small>
+            </div>
+          </div>
+          
+          <nav class="nav flex-column gap-1">
+            <button class="nav-link text-white text-start p-3 rounded sidebar-btn active" data-section="dashboard">📊 Dashboard</button>
+            <button class="nav-link text-white text-start p-3 rounded sidebar-btn" data-section="books">📚 Books</button>
+            <button class="nav-link text-white text-start p-3 rounded sidebar-btn" data-section="audio">🔊 Audio</button>
+            <button class="nav-link text-white text-start p-3 rounded sidebar-btn" data-section="videos">📹 Videos</button>
+            <button class="nav-link text-white text-start p-3 rounded sidebar-btn" data-section="transactions">💰 Transactions</button>
+            <button class="nav-link text-white text-start p-3 rounded sidebar-btn" data-section="assistants">👥 Assistant Admins</button>
+          </nav>
+          
+          <div class="mt-auto pt-4">
+            <button onclick="handleLogout()" class="btn btn-danger w-100">
+              <i data-lucide="log-out" class="me-2"></i> Logout
+            </button>
+          </div>
+        </div>
+      </div>
 
-<!-- Second Navbar (Navbar Items) -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark second-navbar">
-  <!-- Toggler for mobile view -->
-  <button class="navbar-toggler mx-auto" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-
-  <!-- Collapsible navbar items -->
-  <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-    <ul class="navbar-nav">
-      <li class="nav-item">
-        <a class="nav-link text-danger" href="admin-dashboard.html">Home</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link text-danger" href="overview.html">Reports</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link text-danger" href="resource-management.html">Resource Management</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link text-danger" href="users-management.html">User Management</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link text-danger" href="#" onclick="logout()">Logout</a> <!-- Text-based logout -->
-      </li>
-    </ul>
-  </div>
-</nav>
 <br><br>
 <!-- Main Content -->
       <div class="flex-grow-1 p-4">
@@ -327,4 +317,5 @@
  <script src="dashboard.js"></script>
 </body>
 </html>
+
 
