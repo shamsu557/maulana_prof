@@ -52,39 +52,269 @@
   </div>
 </nav>
 <br><br>
+<!-- Main Content -->
+      <div class="flex-grow-1 p-4">
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="content-section">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold">Dashboard</h2>
+            <div class="d-flex align-items-center gap-2">
+              <img src="placeholder-user.jpg" alt="Admin" width="40" height="40" class="rounded-circle border border-primary" />
+              <small class="text-muted">Welcome, Admin</small>
+            </div>
+          </div>
 
-  <!-- Welcome Section -->
-  <main class="container">
-    <div class="welcome-card">
-      <h1>Welcome, Admin!</h1>
-      <p class="welcome-message">
-        You are logged into the admin dashboard. From here, you can monitor users, system reports, and resources. 
-        Please use the navigation to proceed to the desired section.
-      </p>
+          <!-- Stats Cards -->
+          <div class="row g-4 mb-4">
+            <div class="col-md-6 col-lg-3">
+              <div class="card border-start border-primary border-4 h-100">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                  <div>
+                    <p class="text-muted mb-1">Total Books</p>
+                    <h3 class="text-primary fw-bold mb-0" id="total-books">0</h3>
+                  </div>
+                  <i data-lucide="file-text" class="text-primary" style="width: 48px; height: 48px;"></i>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+              <div class="card border-start border-success border-4 h-100">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                  <div>
+                    <p class="text-muted mb-1">Total Audio</p>
+                    <h3 class="text-success fw-bold mb-0" id="total-audio">0</h3>
+                  </div>
+                  <i data-lucide="volume-2" class="text-success" style="width: 48px; height: 48px;"></i>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+              <div class="card border-start border-warning border-4 h-100">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                  <div>
+                    <p class="text-muted mb-1">Total Videos</p>
+                    <h3 class="text-warning fw-bold mb-0" id="total-videos">0</h3>
+                  </div>
+                  <i data-lucide="video" class="text-warning" style="width: 48px; height: 48px;"></i>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+              <div class="card border-start border-info border-4 h-100">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                  <div>
+                    <p class="text-muted mb-1">Current Balance</p>
+                    <h3 class="text-info fw-bold mb-0" id="current-balance">₦0</h3>
+                  </div>
+                  <i data-lucide="dollar-sign" class="text-info" style="width: 48px; height: 48px;"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Financial Report Section -->
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title fw-bold mb-4">Generate Financial Report</h5>
+              <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                  <label class="form-label fw-medium">From Date</label>
+                  <input type="date" class="form-control" id="report-date-from" />
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label fw-medium">To Date</label>
+                  <input type="date" class="form-control" id="report-date-to" />
+                </div>
+                <div class="col-md-3">
+                  <button onclick="generateReport()" class="btn btn-primary">
+                    <i data-lucide="download" class="me-2"></i> Generate Report
+                  </button>
+                </div>
+                <div class="col-md-3">
+                  <button onclick="showAddModal('expense')" class="btn btn-danger">
+                    <i data-lucide="plus" class="me-2"></i> Add Expense
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Books Section -->
+        <div id="books-section" class="content-section d-none">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold">Manage Books</h2>
+            <button onclick="showAddModal('book')" class="btn btn-primary">
+              <i data-lucide="plus" class="me-2"></i> Add Book
+            </button>
+          </div>
+          <div class="card">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Cover</th>
+                    <th>Title (English)</th>
+                    <th>Title (Arabic)</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="books-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audio Section -->
+        <div id="audio-section" class="content-section d-none">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold">Manage Audio</h2>
+            <button onclick="showAddModal('audio')" class="btn btn-success">
+              <i data-lucide="plus" class="me-2"></i> Add Audio
+            </button>
+          </div>
+          <div class="card">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Title (English)</th>
+                    <th>Title (Arabic)</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="audio-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Videos Section -->
+        <div id="videos-section" class="content-section d-none">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold">Manage Videos</h2>
+            <button onclick="showAddModal('video')" class="btn btn-warning">
+              <i data-lucide="plus" class="me-2"></i> Add Video
+            </button>
+          </div>
+          <div class="card">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Title (English)</th>
+                    <th>Title (Arabic)</th>
+                    <th>Description</th>
+                    <th>Video URL</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="videos-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Transactions Section -->
+        <div id="transactions-section" class="content-section d-none">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold">Financial Transactions</h2>
+            <div class="fw-bold fs-5">Current Balance: <span class="text-success" id="balance-display">₦0</span></div>
+          </div>
+          <div class="card">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Donor/Reference</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+                <tbody id="transactions-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Assistants Section -->
+        <div id="assistants-section" class="content-section d-none">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold">Assistant Admins</h2>
+            <button onclick="showAddModal('assistant')" class="btn btn-info">
+              <i data-lucide="plus" class="me-2"></i> Add Assistant
+            </button>
+          </div>
+          <div class="card">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Role</th>
+                    <th>Created</th>
+                  </tr>
+                </thead>
+                <tbody id="assistants-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </main>
-<br><br>
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="row">
-      <div class="col-md-3">
-        <p>Professor Ibeawuchi Amagwu Francis</p>
-        <p>Email: Frank.Amagwu@gmail.com</p>
-        <p>Phone: +234 803 328 4372</p>
-      </div>
-      <div class="col-md-3">
-        <p>Micro and Development Finance</p>
-        <p>National Open University of Nigeria</p>
-        <a href="https://www.facebook.com/prof.johndoe" target="_blank">
-          <i class="fab fa-facebook"></i> Facebook
-        </a>
-      </div>
-      <div class="col-md-3 text-center">
-        <p>&copy; 2024 Professor Ibeawuchi Amagwu</p>
-        <p>All rights reserved.</p>
+  </div>
+
+  <!-- Add Modal -->
+  <div class="modal fade" id="addModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="add-modal-title">Add New Item</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="add-form">
+            <div id="form-fields"></div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="add-submit-btn" onclick="handleAddItem()">Add Item</button>
+        </div>
       </div>
     </div>
-  </footer>
+  </div>
+
+  <!-- Delete Modal -->
+  <div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-danger">Confirm Deletion</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-3">Are you sure you want to delete <strong id="delete-item-name"></strong>?</p>
+          <p class="small text-danger">This action cannot be undone.</p>
+          <div class="mb-3">
+            <label class="form-label fw-medium">Enter your admin password to confirm:</label>
+            <input type="password" class="form-control" id="delete-password" placeholder="Enter password" required />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" onclick="confirmDelete()">
+            <i data-lucide="trash-2" class="me-2"></i> Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Back to top button -->
   <button onclick="topFunction()" id="myBtn" title="Go to top"><i class="fas fa-arrow-up"></i></button>
@@ -97,3 +327,4 @@
  <script src="dashboard.js"></script>
 </body>
 </html>
+
