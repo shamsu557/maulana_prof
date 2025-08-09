@@ -83,7 +83,32 @@ function showAccessDenied() {
 function goToLogin() {
   window.location.href = '/admin-login.html';
 }
+  // Function to check authentication status
+    function checkAuth() {
+      fetch('/auth-check')
+      .then(response => response.json())
+      .then(data => {
+        if (!data.authenticated) {
+          // Redirect to admin login if not authenticated
+          window.location.href = '/adminLogin';
+        }
+      })
+      .catch(err => {
+        console.error('Error checking authentication:', err);
+      });
+    }
 
+    // Check authentication status on page load
+    window.onload = function() {
+      checkAuth();
+    };
+
+  // Also check authentication status when navigating back/forward
+  window.onpageshow = function(event) {
+      if (event.persisted) {
+          checkAuth();
+      }
+  };
 // Setup event listeners
 function setupEventListeners() {
   // Sidebar navigation
