@@ -1,170 +1,495 @@
-  /* Moving text style with fixed images */
-    .marquee-container {
-      background: #f8f9fa;
-      border-bottom: 2px solid #ddd;
-      overflow: hidden;
-      position: relative;
-      height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .marquee-text {
-      white-space: nowrap;
-      position: absolute;
-      width: 100%;
-      text-align: center;
-      line-height: 50px;
-      animation: marquee 25s linear infinite;
-      font-weight: bold;
-    }
-    @keyframes marquee {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
-    }
-  /* Fixed rectangular images on each side */
-.fixed-image {
-  width: 55px; /* Smaller size */
-  height: 60px; /* Smaller size */
-  object-fit: contain; /* Ensures the entire image fits within the dimensions */
-  border-radius: 50%; /* Optional: slight rounding to corners */
-}
-.hover-text {
-  opacity: 0;
-  transition: opacity 0.3s;
+/* Custom CSS for the converted homepage */
+
+/* Root variables */
+:root {
+    --primary-color: #0d6efd;
+    --success-color: #198754;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --dark-color: #212529;
+    --light-color: #f8f9fa;
+    --border-radius: 0.625rem;
 }
 
-div:hover .hover-text {
-  opacity: 1;
+/* Arabic font styling */
+.arabic {
+    font-family: 'Amiri', 'Traditional Arabic', 'Times New Roman', serif;
+    direction: rtl;
+    text-align: right;
+    line-height: 1.8;
+    font-size: 1.05em;
+    letter-spacing: 0.02em;
 }
 
-    /* Modal transparency */
-    .modal-transparent {
-      background-color: rgba(0, 0, 0, 0.6);
-    }
-    .modal-body {
-      color: white;
-      text-align: center;
-      font-size: 18px;
-    }
-    /* Modal image as circular */
-    .modal-body img {
-      width: 220px;
-      height: 290px;
-      border-radius: 50%;
-      margin-bottom: 20px;
-      object-fit: cover; /* Ensures the image is fully contained within the circle */
-    }
- /* Container to center the image */
+.arabic h1, .arabic h2, .arabic h3, .arabic h4, .arabic h5, .arabic h6 {
+    font-weight: bold;
+    line-height: 1.6;
+}
+
+.arabic p {
+    line-height: 1.8;
+    text-align: justify;
+}
+
+.arabic .btn {
+    font-weight: 500;
+}
+
+.arabic .form-control, .arabic .form-select {
+    font-family: 'Amiri', 'Traditional Arabic', 'Times New Roman', serif;
+    line-height: 1.6;
+}
+
+.arabic .small {
+    font-size: 0.9em;
+}
+
+.arabic .fs-5 {
+    font-size: 1.15rem;
+}
+
+/* RTL support */
+[dir="rtl"] {
+    direction: rtl;
+    text-align: right;
+}
+
+[dir="rtl"] .navbar-brand {
+    margin-right: 0;
+    margin-left: auto;
+}
+
+[dir="rtl"] .navbar-nav {
+    margin-right: auto;
+    margin-left: 0;
+}
+
+[dir="rtl"] .me-1, [dir="rtl"] .me-2 {
+    margin-right: 0 !important;
+    margin-left: 0.25rem !important;
+}
+
+[dir="rtl"] .ms-1, [dir="rtl"] .ms-2 {
+    margin-left: 0 !important;
+    margin-right: 0.25rem !important;
+}
+
+[dir="rtl"] .text-justify {
+    text-align: justify;
+}
+
+[dir="rtl"] .d-flex {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .input-group .form-control {
+    text-align: right;
+}
+
+[dir="rtl"] .btn {
+    text-align: center;
+}
+
+[dir="rtl"] .card-title {
+    text-align: right;
+}
+
+[dir="rtl"] .modal-title {
+    text-align: right;
+}
+
+[dir="rtl"] .form-label {
+    text-align: right;
+    display: block;
+    width: 100%;
+}
+
+[dir="rtl"] .list-unstyled {
+    text-align: right;
+}
+
+[dir="rtl"] .text-center {
+    text-align: center !important;
+}
+
+[dir="rtl"] .row {
+    --bs-gutter-x: 1.5rem;
+    text-align: right;
+}
+
+[dir="rtl"] .col-md-3,
+[dir="rtl"] .col-md-4,
+[dir="rtl"] .col-md-6,
+[dir="rtl"] .col-md-8,
+[dir="rtl"] .col-md-9 {
+    text-align: right;
+}
+
+[dir="rtl"] .text-muted {
+    text-align: right;
+}
+
+[dir="rtl"] .d-grid .btn {
+    text-align: center;
+}
+
+[dir="rtl"] .btn-group {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .input-group {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .input-group .input-group-text {
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+}
+
+[dir="rtl"] .input-group .form-control {
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+}
+
+[dir="rtl"] .alert {
+    text-align: right;
+}
+
+[dir="rtl"] .modal-header {
+    text-align: right;
+}
+
+[dir="rtl"] .modal-body {
+    text-align: right;
+}
+
+[dir="rtl"] .modal-footer {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .navbar-toggler {
+    margin-left: 0;
+    margin-right: auto;
+}
+
+[dir="rtl"] footer .row {
+    text-align: right;
+}
+
+[dir="rtl"] footer .d-flex {
+    align-items: flex-start;
+}
+
+/* Profile image styling */
+.prof-image {
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.prof-image:hover {
+    transform: scale(1.05);
+}
+
+/* Book card styling */
+.book-card {
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.book-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.book-cover {
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.book-title {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.5em;
+}
+
+.book-title.arabic {
+    font-family: 'Amiri', 'Traditional Arabic', 'Times New Roman', serif;
+    direction: rtl;
+    text-align: right;
+    line-height: 1.6;
+}
+
+/* Back to top button */
+#back-to-top {
+    width: 50px;
+    height: 50px;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+#back-to-top:hover {
+    transform: translateY(-3px);
+}
+
+/* Loading spinner */
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Search input styling */
+.input-group-text {
+    background-color: var(--light-color);
+    border-right: none;
+}
+
+[dir="rtl"] .input-group-text {
+    border-right: 1px solid #ced4da;
+    border-left: none;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.form-control.text-end {
+    text-align: right;
+}
+
+.form-select.text-end {
+    text-align: right;
+}
+
+/* Contact form styling */
 .card {
-  display: flex;
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
-  height: 100%; /* Ensure the card has height for vertical centering */
-  text-align: center; /* Ensure content is centered */
+    border: none;
+    border-radius: var(--border-radius);
 }
 
-/* Card image style */
-.card-img-top {
-  height: 170px; /* Fixed height for consistency */
-  width: 80%; /* 80% of the card's width */
-  object-fit: contain; /* Maintain aspect ratio without cropping */
-  border-radius: 5px; /* Optional: to give a rounded effect */
+.card.shadow {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
 }
 
+.card.shadow-lg {
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+}
 
-    /* Flexbox for body and footer positioning */
-    body {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      margin: 0;
+/* Button styling */
+.btn {
+    border-radius: var(--border-radius);
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+/* Modal styling */
+.modal-content {
+    border-radius: var(--border-radius);
+    border: none;
+}
+
+.modal-header {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.modal-footer {
+    border-top: 1px solid #dee2e6;
+}
+
+/* Navbar styling */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar-brand img {
+    border-radius: 50%;
+}
+
+/* Navbar cancel button styling */
+.navbar-cancel {
+    font-size: 1.5rem;
+    border: none;
+    background: none;
+    color: var(--light-color);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: var(--border-radius);
+    transition: all 0.3s ease;
+    position: absolute;
+    right: 15px;
+    top: 8px;
+    z-index: 1050;
+}
+
+.navbar-cancel:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.navbar-cancel:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
+}
+.navbar-cancel span {
+    line-height: 1;
+}
+
+@media (min-width: 992px) {
+    .navbar-cancel {
+        display: none !important;
+    }
+}
+
+[dir="rtl"] .navbar-cancel {
+    margin-left: 0;
+    margin-right: auto;
+}
+
+/* Footer styling */
+footer {
+    background-color: var(--dark-color) !important;
+    color: #fff !important;
+}
+
+footer a,
+footer span,
+footer p,
+footer li,
+footer .text-muted {
+    color: #fff !important;
+}
+
+footer a:hover {
+    color: #ffc107 !important;
+}
+
+footer .row,
+footer .d-flex {
+    text-align: left;
+}
+
+[dir="rtl"] footer .row {
+    text-align: right;
+}
+
+[dir="rtl"] footer .d-flex {
+    align-items: flex-start;
+}
+
+/* Form styling for RTL */
+[dir="rtl"] .form-control,
+[dir="rtl"] .form-select,
+[dir="rtl"] textarea {
+    text-align: right;
+    direction: rtl;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    .book-card {
+        margin-bottom: 1rem;
+    }
+    .prof-image {
+        width: 80px;
+        height: 80px;
+    }
+    h2 {
+        font-size: 1.5rem;
+    }
+    .btn-sm {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+    [dir="rtl"] .navbar-brand span {
+        font-size: 0.9rem;
+    }
+    [dir="rtl"] .card-body {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .navbar-brand span {
+        font-size: 0.9rem;
+    }
+    .card-body {
+        padding: 1rem;
+    }
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+    [dir="rtl"] .modal-dialog {
+        margin: 0.5rem;
+    }
+    [dir="rtl"] .btn-sm {
+        font-size: 0.7rem;
+    }
+}
+
+/* Animation classes */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-up {
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+/* Text utilities */
+.text-justify {
+    text-align: justify;
+}
+
+[dir="rtl"] .text-justify {
+    text-align: justify;
+    direction: rtl;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #0056b3;
+}
+
+/* Print styles */
+@media print {
+    .navbar, .back-to-top, footer, .modal {
+        display: none !important;
     }
     .container {
-      flex: 1;
+        max-width: none !important;
     }
-    /* Ensure books and papers are in one row for small devices */
-    @media (min-width: 500px) {
-      .row-wrap {
-        display: flex;
-        flex-wrap: wrap;
-      }
-      .row-wrap > div {
-        flex: 0 0 33.33%; /* Three items per row for screens 500px and wider */
-        max-width: 33.33%; /* Ensure items take up one-third of the row */
-        margin-bottom: 15px; /* Adjust bottom margin as needed */
-      }
+    [dir="rtl"] * {
+        direction: rtl;
+        text-align: right;
     }
-  
-    @media (max-width: 499px) {
-      .row-wrap {
-        display: flex;
-        flex-wrap: wrap;
-      }
-      .row-wrap > div {
-        flex: 0 0 50%; /* Two items per row for screens narrower than 500px */
-        max-width: 50%; /* Ensure items take up half of the row */
-        margin-bottom: 15px; /* Adjust bottom margin as needed */
-      }
-    }
-    /* Footer style */
-    .form-control { 
-  margin-bottom: 15px;
 }
-
-.footer {
-  background: #f8f9fa;
-  color: #343a40;
-  padding: 10px;
-  text-align: center;
-  display: flex;
-  justify-content: center; /* Center horizontally */
-  align-items: center;     /* Center vertically */
-  flex-direction: column;  /* Stack items vertically */
-}
-
-.footer .row {
-  width: 100%; /* Ensure row takes up the full width */
-  display: flex;
-  justify-content: center; /* Center horizontally */
-  align-items: center;     /* Center vertically if necessary */
-  margin: 0;
-}
-
-.footer .col {
-  padding: 0;
-  text-align: center; /* Ensure content in columns is centered */
-}
-
-.footer p {
-  margin: 0;
-}
-
-.footer a {
-  color: #007bff;
-  text-decoration: none;
-}
-
-.footer i {
-  font-size: 24px;
-}
-
-    #myBtn {
-      display: none;
-      position: fixed;
-      bottom: 15px;
-      right: 30px;
-      z-index: 99;
-      border: none;
-      outline: none;
-      background-color: rgb(210, 210, 233);
-      color: white;
-      cursor: pointer;
-      padding: 15px;
-      border-radius: 4px;
-    }
-  
-    #myBtn:hover {
-      background-color: #555;
-    }
-  
