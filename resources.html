@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Professor's Publications</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+ <link rel="stylesheet" href="resources.css">
+</head>
+<body>
+  
+  <!-- Moving text banner -->
+  <div class="marquee-container">
+    <div><img src="educap.jfif" class="fixed-image" alt="Education Cap"></div>
+    <div class="marquee-text">
+        Explore our collection of books and papers! Click to download or read resources instantly.
+    </div>
+    <div><img src="prof.jpeg" class="fixed-image" alt="Professor Picture"></div>
+  </div>  
+<br>
+  <header class="bg-light py-3">
+    <div class="container">
+        <h1 class="text-center">Resources</h1>
+    </div>
+  </header>
+<body>
+    <main class="container my-4">
+        <!-- Search Section -->
+        <div class="search-container">
+        <div class="form-group col-md-6">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search for books or papers..." oninput="filterResources()">
+        </div></div>
+
+        <div class="container mt-4">
+            <h2 class="text-center">Books</h2>
+            <div id="book-list" class="row"></div> <!-- Books will be dynamically populated here -->
+
+            <h2 class="text-center mt-4">Papers</h2>
+            <div id="papers-list" class="row"></div> <!-- Papers will be dynamically populated here -->
+        </div>
+        <br>
+        <div class="bg-light py-3">
+            <div class="container text-center">
+                <a href="/logout" class="btn btn-secondary">Logout</a>
+            </div>
+        </div>
+    </main>
+
+      <!-- Footer -->
+      <div class="footer">
+        <div class="row">
+            <div class="col-md-3">
+                <p>Professor Ibeawuchi Amagwu Francis</p>
+                <p>Email: Frank.Amagwu@gmail.com</p>
+                <p>Phone: +234 803 328 4372</p>
+            </div>
+            <div class="col-md-3">
+                <p>Micro and Development Finance</p>
+                <p>National Open University of Nigeria</p>
+                <a href="https://www.facebook.com/prof.johndoe" target="_blank">
+                    <i class="fab fa-facebook"></i> Facebook
+                </a>
+            </div>
+            <div class="col-md-3 text-center">
+                <p>&copy; 2024 Professor Ibeawuchi Amagwu</p>
+                <p>All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+    
+  
+    <!-- Back to top button -->
+    <button onclick="topFunction()" id="myBtn" title="Go to top"><i class="fas fa-arrow-up"></i></button>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="resource1.js"></script>
+</body>
+</html>

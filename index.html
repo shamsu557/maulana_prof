@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Professor Amagwu Ibeawuchi Francis  PhD, HCIB, FCCSA (USA), FCNA, WAAD, FAHI's publications</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+ <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+<div class="marquee-container">
+    <div><img src="educap.jfif" class="fixed-image" alt="Education Cap"></div>
+    <div class="marquee-text">
+      Welcome to Professor Amagwu Ibeawuchi Francis  PhD, HCIB, FCCSA (USA), FCNA, WAAD, FAHI's publications page! Explore his groundbreaking research and books. 
+      Discuss contemporary economic and socio-political issues, with a focus on youth, women, and the rural economy in Africa.
+    </div>
+    <div>
+      <a href="about.html" title="Click to learn more about me" style="position: relative; display: inline-block;">
+        <img src="prof.jpeg" class="fixed-image" alt="Professor Picture" style="cursor: pointer;">
+      
+        <!-- The hoverable pop-up message -->
+        <div style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+                    background-color: #6b6767; padding: 10px; border: 1px solid #383737; border-radius: 5px; 
+                    text-align: center; white-space: nowrap;" id="hoverMessage">
+          About Me
+        </div>
+      </a>
+    </div>
+    
+  </div>  
+  <br>
+  <header class="bg-light py-3">
+    <div class="container">
+        <h1 class="text-center">Professor Amagwu Ibeawuchi Francis Publications </h1>
+    </div>
+  </header>
+    <main class="container my-4">
+      <div class="row">
+        <!-- Access Guide Section -->
+<div class="form-group col-md-6 text-center mb-4">
+  <a href="login.html" class="btn btn-success btn-lg">Sign Up for Free or Log In to Access All Publications</a>
+</div>
+
+<!-- Search Section -->
+<div class="form-group col-md-6 search-container ">
+  <input type="text" id="searchInput" class="form-control" placeholder="Search for books or papers..." oninput="filterResources()">
+</div>
+      </div>  
+      
+        <div class="container mt-4">
+            <h2 class="text-center">Books</h2>
+            <div id="book-list" class="row"></div> <!-- Books will be dynamically populated here -->
+  
+            <h2 class="text-center mt-4">Papers</h2>
+            <div id="papers-list" class="row"></div> <!-- Papers will be dynamically populated here -->
+        </div>
+        
+    </main><br>
+  
+    <!-- Footer -->
+    <div class="footer">
+      <div class="row">
+          <div class="col-md-3">
+              <p>Professor Ibeawuchi Amagwu Francis</p>
+              <p>Email: Frank.Amagwu@gmail.com</p>
+              <p>Phone: +234 803 328 4372</p>
+          </div>
+          <div class="col-md-3">
+              <p>Micro and Development Finance</p>
+              <p>National Open University of Nigeria</p>
+              <a href="https://www.facebook.com/prof.johndoe" target="_blank">
+                  <i class="fab fa-facebook"></i> Facebook
+              </a>
+          </div>
+          <div class="col-md-3 text-center">
+              <p>&copy; 2024 Professor Ibeawuchi Amagwu</p>
+              <p>All rights reserved.</p>
+          </div>
+      </div>
+  </div>
+  
+<!-- Modal Popup -->
+<div class="modal fade" id="professorModal" tabindex="-1" aria-labelledby="professorModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content modal-transparent">
+      <div class="modal-body">
+        <p>
+          Dear Readers,<br><br>
+          Welcome to this website, where we discuss contemporary economic and socio-political issues, with a focus on youth, women, and the rural economy in Africa. These groups are vital to our society's progress yet often underrepresented. By engaging here, you become part of a journey to explore how their participation can shape a better future. 
+        </p>
+        <p>
+          Join this mission, participate actively, and let’s make impactful contributions to society. Your engagement is appreciated.
+        </p>
+        <p>Welcome on board!</p>
+
+        <p><strong>COPYRIGHT NOTICE</strong><br>
+        All content on this website is copyright of Prof. Amagwu. You may print or download content for personal, non-commercial use and share it with others if credited. Unauthorized commercial use, distribution, or storage without permission is prohibited.
+        </p>
+      </div>
+      <div class="modal-footer d-flex flex-column align-items-center">
+    <button type="button" class="btn btn-primary mb-2" data-dismiss="modal">About the Professor</button>
+    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+</div>
+
+    </div>
+  </div>
+</div>
+
+
+
+    <!-- Back to top button -->
+    <button onclick="topFunction()" id="myBtn" title="Go to top"><i class="fas fa-arrow-up"></i></button>
+  
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  
+   <script src="ind.js"></script>
+  </body>
+  </html>
+  
