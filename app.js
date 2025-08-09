@@ -203,7 +203,6 @@ app.get('/admin-signup', (req, res) => {
 // Handle admin signup
 app.post('/admin-signup', (req, res) => {
   const { username, password, email, fullName, phone } = req.body;
-
   // Check if the email already exists
   db.query('SELECT email FROM admins WHERE email = ?', [email], (err, results) => {
     if (err) {
@@ -393,3 +392,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
