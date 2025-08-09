@@ -602,6 +602,6 @@ async function handleLogout() {
     window.location.href = '/admin-login.html';
   } catch (error) {
     console.error('Logout error:', error);
-    window.location.href = '/admin-login.html';
+    window.location.href = '/index.html';
   }
 }
