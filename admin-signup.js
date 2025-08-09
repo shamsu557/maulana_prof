@@ -38,7 +38,7 @@
         const data = Object.fromEntries(formData.entries());
 
         // Send data to the server
-        fetch('/admin-signup', {
+        fetch('/creation', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
