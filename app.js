@@ -66,7 +66,7 @@ app.get('/login', (req, res) => {
 app.post('/admin-creation-login', (req, res) => {
   const { username, password } = req.body;
 
-  if (username === 'Admin' && password === 'password') {
+  if (username === 'SuperAdmin' && password === 'security') {
     return res.json({ success: true, message: 'Login successful! You can now create a new admin.' });
   } else {
     return res.json({ success: false, message: 'Invalid credentials! You do not have permission to create admins.' });
@@ -74,7 +74,7 @@ app.post('/admin-creation-login', (req, res) => {
 });
 
 // Admin signup page
-app.get('/admin-signup', (req, res) => {
+app.get('/creation', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin-signup.html'));
 });
 
