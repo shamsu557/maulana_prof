@@ -79,7 +79,7 @@ app.get('/creation', (req, res) => {
 });
 
 // Handle admin signup
-app.post('/admin-signup', (req, res) => {
+app.post('/creation', (req, res) => {
   const { username, password, email, fullName, phone } = req.body;
 
   db.query('SELECT email FROM admins WHERE email = ?', [email], (err, results) => {
