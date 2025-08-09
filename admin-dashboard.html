@@ -9,37 +9,45 @@
 </head>
 <body class="bg-light">
 
-  <!-- Main Dashboard -->
-  <div id="main-dashboard" class="d-none">
-    <div class="d-flex">
-      <!-- Sidebar -->
-      <div class="sidebar text-white" style="width: 280px; min-height: 100vh; background: linear-gradient(180deg, #0d6efd 0%, #6f42c1 100%);">
-        <div class="p-4 d-flex flex-column h-100">
-          <div class="d-flex align-items-center mb-4">
-            <img src="placeholder-logo.png" alt="Logo" width="32" height="32" class="me-2 rounded-circle" />
-            <div>
-              <h5 class="mb-0 fw-bold">Admin Panel</h5>
-              <small class="opacity-75">Prof. Ibrahim Ahmad Maqari</small>
-            </div>
-          </div>
-          
-          <nav class="nav flex-column gap-1">
-            <button class="nav-link text-white text-start p-3 rounded sidebar-btn active" data-section="dashboard">📊 Dashboard</button>
-            <button class="nav-link text-white text-start p-3 rounded sidebar-btn" data-section="books">📚 Books</button>
-            <button class="nav-link text-white text-start p-3 rounded sidebar-btn" data-section="audio">🔊 Audio</button>
-            <button class="nav-link text-white text-start p-3 rounded sidebar-btn" data-section="videos">📹 Videos</button>
-            <button class="nav-link text-white text-start p-3 rounded sidebar-btn" data-section="transactions">💰 Transactions</button>
-            <button class="nav-link text-white text-start p-3 rounded sidebar-btn" data-section="assistants">👥 Assistant Admins</button>
-          </nav>
-          
-          <div class="mt-auto pt-4">
-            <button onclick="handleLogout()" class="btn btn-danger w-100">
-              <i data-lucide="log-out" class="me-2"></i> Logout
-            </button>
-          </div>
-        </div>
-      </div>
+<!-- Top Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(90deg, #0d6efd 0%, #6f42c1 100%);">
+  <div class="container-fluid">
+    
+    <!-- Logo + Title -->
+    <a class="navbar-brand d-flex align-items-center" href="#">
+      <img src="placeholder-logo.png" alt="Logo" width="32" height="32" class="me-2 rounded-circle" />
+      <span class="fw-bold">Admin Panel</span>
+    </a>
 
+    <!-- Navbar Links -->
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link active text-white" href="#" data-section="dashboard">📊 Dashboard</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" href="#" data-section="books">📚 Books</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" href="#" data-section="audio">🔊 Audio</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" href="#" data-section="videos">📹 Videos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" href="#" data-section="transactions">💰 Transactions</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" href="#" data-section="assistants">👥 Assistant Admins</a>
+        </li>
+        <li class="nav-item">
+          <button onclick="handleLogout()" class="btn btn-danger ms-3">Logout</button>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</nav>
 <br><br>
 <!-- Main Content -->
       <div class="flex-grow-1 p-4">
@@ -316,6 +324,7 @@
  <script src="dashboard.js"></script>
 </body>
 </html>
+
 
 
 
