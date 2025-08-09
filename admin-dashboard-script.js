@@ -28,39 +28,6 @@ async function initializeApp() {
   setupEventListeners();
 }
 
-// Check authentication
-async function checkAuth() {
-  try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/check-auth`, {
-          method: 'GET',
-          credentials: 'include',
-          headers: {
-              'Content-Type': 'application/json'
-          }
-      });
-      
-      if (response.ok) {
-          const data = await response.json();
-          if (data.authenticated) {
-              if (data.first_login) {
-                  // First login, redirect to login page
-                  window.location.href = '/admin-login.html';
-                  return;
-              }
-              // User is authenticated, show dashboard
-              showDashboard();
-              await loadData();
-          } else {
-              showAccessDenied();
-          }
-      } else {
-          showAccessDenied();
-      }
-  } catch (error) {
-      console.error('Auth check error:', error);
-      showAccessDenied();
-  }
-}
 
 // Show dashboard
 function showDashboard() {
