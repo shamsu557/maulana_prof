@@ -2,11 +2,11 @@ const mysql = require('mysql');
 
 // MySQL database connection configuration
 const dbConfig = {
-    host: process.env.DB_HOST || '192.250.234.159',  // Use environment variable or default
+    host: process.env.DB_HOST || 'mysql-shamsu557.alwaysdata.net',  // Use environment variable or default
     port: process.env.DB_PORT || 3306,                       // Default MySQL port or environment variable
-    user: process.env.DB_USER || 'frankama_admin',               // MySQL username from environment
-    password: process.env.DB_PASSWORD || 'z-P*{@75p$Ou',       // MySQL password from environment
-    database: process.env.DB_NAME || 'frankama_dbase'            // Database name from environment
+    user: process.env.DB_USER || 'shamsu557',               // MySQL username from environment
+    password: process.env.DB_PASSWORD || '@Shamsu1440',       // MySQL password from environment
+    database: process.env.DB_NAME || 'shamsu557_maula_database'            // Database name from environment
 };
 
 // Create MySQL connection
@@ -67,3 +67,4 @@ module.exports = db;
 //     expires_at TIMESTAMP,                      -- Timestamp when the session expires
 //     FOREIGN KEY (user_id) REFERENCES users(id) -- Foreign key linking to the users table
 // );
+
