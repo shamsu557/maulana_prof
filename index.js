@@ -106,6 +106,48 @@ app.post('/creation', (req, res) => {
   });
 });
 
+// API Endpoint to fetch books for current app
+app.get('/api/books', (req, res) => {
+  const query = `
+    SELECT 
+      id, 
+      title_english, 
+      title_arabic, 
+      book_file AS pdf_file, 
+      book_image AS cover_image 
+    FROM books
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching books:', err);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+    res.json(results);
+  });
+});
+
+// View PDF or other file in browser
+app.get('/view/:fileName', (req, res) => {
+  const filePath = path.join(__dirname, req.params.fileName); // direct in project root
+
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+    if (err) return res.status(404).send('File not found');
+    res.sendFile(filePath);
+  });
+});
+
+// Download file
+app.get('/files/:fileName', (req, res) => {
+  const filePath = path.join(__dirname, req.params.fileName); // direct in project root
+
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+    if (err) return res.status(404).send('File not found');
+    res.download(filePath);
+  });
+});
+
+
 // Admin dashboard (protected)
 app.get('/admin-dashboard.html', isAdminAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, 'admin-dashboard.html'));
@@ -158,7 +200,7 @@ app.get('/adminLogout', (req, res) => {
 });
 
 // Use admin routes
-app.use('/admin', adminRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Start server
 const PORT = process.env.PORT || 3000;

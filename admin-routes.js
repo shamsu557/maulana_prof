@@ -70,55 +70,37 @@ router.get('/getBooks', (req, res) => {
     });
 });
 
-// Route to get all papers
-router.get('/getPapers', (req, res) => {
-    const sql = 'SELECT * FROM papers';
-    db.query(sql, (err, results) => {
-        if (err) throw err;
-        res.json(results);
-    });
-});
-
-// Route to add a book
-router.post('/addBook', upload.fields([{ name: 'bookFile' }, { name: 'bookImage' }]), async (req, res) => {
-    const { bookTitle, username, password } = req.body; // Expecting username and password in the request body
-    const fileName = req.files['bookFile'][0].filename;
-    const imageName = req.files['bookImage'][0].filename;
+    router.post(
+  '/books',
+  upload.fields([
+    { name: 'pdf_file' },   // match HTML input name
+    { name: 'cover_image' } // match HTML input name
+  ]),
+  async (req, res) => {
+    const { title_english, title_arabic } = req.body;
+    const bookFile = req.files['pdf_file'][0].filename;
+    const bookImage = req.files['cover_image'][0].filename;
     const dateAdded = new Date();
 
-    // Check if admin exists and verify password
-    const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
+    const sqlCheckBook = 'SELECT * FROM books WHERE title_english = ? OR title_arabic = ?';
+    db.query(sqlCheckBook, [title_english, title_arabic], (err, result) => {
+      if (err) throw err;
+      if (result.length > 0) {
+        return res.status(400).json({ message: 'Book with this title already exists' });
+      }
 
-    db.query(sqlCheckAdmin, [username], async (err, adminResult) => {
-        if (err || adminResult.length === 0) {
-            return res.status(403).json({ message: 'Invalid admin credentials' });
-        }
-
-        const admin = adminResult[0];
-
-        // Compare the provided password with the hashed password in the database
-        const match = await bcrypt.compare(password, admin.password);
-        if (!match) {
-            return res.status(403).json({ message: 'Invalid admin credentials' });
-        }
-
-        // Check if the book title already exists in the database
-        const sqlCheckBook = 'SELECT * FROM books WHERE bookTitle = ?';
-        db.query(sqlCheckBook, [bookTitle], (err, result) => {
-            if (err) throw err;
-            if (result.length > 0) {
-                return res.status(400).json({ message: 'Book with this title already exists' });
-            }
-
-            // If no duplicate, proceed to add the book
-            const sqlInsertBook = 'INSERT INTO books (bookTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
-            db.query(sqlInsertBook, [bookTitle, fileName, dateAdded, imageName], (err) => {
-                if (err) throw err;
-                res.status(201).json({ message: 'Book added successfully!' });
-            });
-        });
+      const sqlInsertBook = `
+        INSERT INTO books (title_english, title_arabic, book_file, book_image, date_added)
+        VALUES (?, ?, ?, ?, ?)
+      `;
+      db.query(sqlInsertBook, [title_english, title_arabic, bookFile, bookImage, dateAdded], (err) => {
+        if (err) throw err;
+        res.status(201).json({ message: 'Book added successfully!' });
+      });
     });
-});
+  }
+);
+
 // Route to add a paper
 router.post('/addPaper', upload.fields([{ name: 'paperFile' }, { name: 'paperImage' }]), async (req, res) => {
     const { paperTitle, username, password } = req.body; // Expecting username and password in the request body
@@ -174,37 +156,39 @@ router.get('/getUsers', (req, res) => {
 });
 
 // Route to remove a user
-router.delete('/removeUser/:id', async (req, res) => {
-    const userId = req.params.id;
-    const { username, password } = req.body; // Expecting username and password in the request body
+// DELETE book by ID
+router.delete('/books/:id', async (req, res) => {
+  const bookId = req.params.id;
 
-    // Check if admin exists and verify password
-    const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
+  // First get the file names so we can delete them from disk
+  const sqlGetFiles = 'SELECT book_file, book_image FROM books WHERE id = ?';
+  db.query(sqlGetFiles, [bookId], (err, result) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    if (result.length === 0) return res.status(404).json({ error: 'Book not found' });
 
-    db.query(sqlCheckAdmin, [username], async (err, adminResult) => {
-        if (err || adminResult.length === 0) {
-            return res.status(403).json({ message: 'Invalid admin credentials' });
-        }
+    const { book_file, book_image } = result[0];
 
-        const admin = adminResult[0];
+    // Delete the DB record
+    const sqlDeleteBook = 'DELETE FROM books WHERE id = ?';
+    db.query(sqlDeleteBook, [bookId], (err) => {
+      if (err) return res.status(500).json({ error: 'Failed to delete book' });
 
-        // Compare the provided password with the hashed password in the database
-        const match = await bcrypt.compare(password, admin.password);
-        if (!match) {
-            return res.status(403).json({ message: 'Invalid admin credentials' });
-        }
+      // Optionally delete files from uploads folder
+      const fs = require('fs');
+      const path = require('path');
 
-        // If admin is valid, proceed to delete the user
-        const sqlDeleteUser = 'DELETE FROM users WHERE id = ?';
-        db.query(sqlDeleteUser, [userId], (err) => {
-            if (err) {
-                console.error('Error removing user:', err);
-                return res.status(500).json({ message: 'Error removing user' });
-            }
-            res.json({ message: 'User removed successfully!' });
-        });
+      try {
+        if (book_file) fs.unlinkSync(path.join(__dirname, '../uploads', book_file));
+        if (book_image) fs.unlinkSync(path.join(__dirname, '../uploads', book_image));
+      } catch (fileErr) {
+        console.warn('Error deleting files:', fileErr.message);
+      }
+
+      res.json({ message: 'Book deleted successfully' });
     });
+  });
 });
+
 
 // Route to remove a book
 router.delete('/removeBook/:id', async (req, res) => {

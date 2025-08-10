@@ -154,7 +154,7 @@ function calculateBalance() {
   document.getElementById('balance-display').textContent = `₦${balance.toLocaleString()}`;
 }
 
-// Update books table
+// Update books table with a Delete button on each row
 function updateBooksTable() {
   const tbody = document.getElementById('books-table-body');
   tbody.innerHTML = '';
@@ -162,15 +162,11 @@ function updateBooksTable() {
   books.forEach(book => {
     const row = document.createElement('tr');
     row.innerHTML = `
-      <td>
-        <img src="${book.book_image ? `/Uploads/covers/${book.book_image}` : '/placeholder.svg?height=60&width=45&text=Book'}" 
-             alt="Cover" class="img-thumbnail" style="width: 45px; height: 60px; object-fit: cover;">
-      </td>
       <td>${book.title_english}</td>
       <td class="arabic">${book.title_arabic}</td>
       <td>
-        <button class="btn btn-sm btn-outline-danger" onclick="showDeleteModal('books', ${book.id}, '${book.title_english}')">
-          <i data-lucide="trash-2"></i>
+        <button class="btn btn-danger btn-sm" onclick="handleDeleteBook(${book.id})">
+          <i data-lucide="trash-2"></i> Delete
         </button>
       </td>
     `;
@@ -179,6 +175,31 @@ function updateBooksTable() {
 
   lucide.createIcons();
 }
+
+// Delete a single book
+async function handleDeleteBook(bookId) {
+  if (!confirm('Are you sure you want to delete this book?')) return;
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/admin/books/${bookId}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+
+    if (response.ok) {
+      alert('Book deleted successfully!');
+      await loadData(); // refresh list
+    } else {
+      const error = await response.json();
+      alert(error.error || 'Failed to delete book');
+    }
+  } catch (error) {
+    console.error('Error deleting book:', error);
+    alert('Error deleting book');
+  }
+}
+
+
 
 // Update audio table
 function updateAudioTable() {
@@ -292,7 +313,7 @@ function generateFormFields(type) {
   switch (type) {
     case 'book':
       return `
-        <div class="row mb-3">
+       <d iv class="row mb-3">
           <div class="col-md-6">
             <label class="form-label">Title (English)</label>
             <input type="text" class="form-control" name="title_english" required>
