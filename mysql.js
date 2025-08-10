@@ -24,14 +24,15 @@ db.connect((err) => {
 // Export the database connection
 module.exports = db;
 
-// CREATE TABLE users (
-//     id INT AUTO_INCREMENT PRIMARY KEY, -- Unique ID for each user
-//     fullname VARCHAR(255) NOT NULL,    -- Full name of the user
-//     email VARCHAR(255) NOT NULL UNIQUE, -- Email address (must be unique)
-//     phone_number VARCHAR(15),         -- Phone number (optional)
-//     password VARCHAR(255) NOT NULL,   -- Hashed password for security
-//     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Record creation time
+// CREATE TABLE books (
+//     id INT AUTO_INCREMENT PRIMARY KEY,
+//     title_english VARCHAR(255) NOT NULL,
+//     title_arabic VARCHAR(255) NOT NULL,
+//     book_file VARCHAR(255) NOT NULL,
+//     book_image VARCHAR(255) NOT NULL,
+//     date_added DATETIME NOT NULL
 // );
+
 
 // CREATE TABLE admins (
 //     id INT AUTO_INCREMENT PRIMARY KEY, -- Unique ID for each admin
@@ -43,20 +44,7 @@ module.exports = db;
 //     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Record creation time
 // );
 
-// CREATE TABLE books (
-//     id INT AUTO_INCREMENT PRIMARY KEY, -- Unique identifier for each paper
-//     bookTitle VARCHAR(255) NOT NULL, -- Title of the book
-//     file_name VARCHAR(255) NOT NULL, -- File name of the uploaded book
-//     date_added DATETIME NOT NULL, -- Date the  book was added
-//     image VARCHAR(255) NOT NULL -- File name of the book's image
-// );
-// CREATE TABLE papers (
-//     id INT AUTO_INCREMENT PRIMARY KEY, -- Unique identifier for each paper
-//     paperTitle VARCHAR(255) NOT NULL, -- Title of the paper
-//     file_name VARCHAR(255) NOT NULL, -- File name of the uploaded paper
-//     date_added DATETIME NOT NULL, -- Date the paper was added
-//     image VARCHAR(255) NOT NULL -- File name of the paper's image
-// );
+
 
 
 // CREATE TABLE sessions (
@@ -68,3 +56,13 @@ module.exports = db;
 //     FOREIGN KEY (user_id) REFERENCES users(id) -- Foreign key linking to the users table
 // );
 
+
+
+// CREATE TABLE audio (
+//     id INT AUTO_INCREMENT PRIMARY KEY,
+//     title_english VARCHAR(255) NOT NULL,
+//     title_arabic VARCHAR(255) NOT NULL,
+//     audio_file VARCHAR(255) NOT NULL,
+//     date_added DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+//     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+// );

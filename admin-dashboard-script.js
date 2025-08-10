@@ -199,21 +199,19 @@ async function handleDeleteBook(bookId) {
   }
 }
 
-
-
 // Update audio table
 function updateAudioTable() {
   const tbody = document.getElementById('audio-table-body');
   tbody.innerHTML = '';
 
-  audio.forEach(item => {
+  audios.forEach(audio => {
     const row = document.createElement('tr');
     row.innerHTML = `
-      <td>${item.title_english}</td>
-      <td class="arabic">${item.title_arabic}</td>
+      <td>${audio.title_english}</td>
+      <td class="arabic">${audio.title_arabic}</td>
       <td>
-        <button class="btn btn-sm btn-outline-danger" onclick="showDeleteModal('audio', ${item.id}, '${item.title_english}')">
-          <i data-lucide="trash-2"></i>
+        <button class="btn btn-danger btn-sm" onclick="handleDeleteAudio(${audio.id})">
+          <i data-lucide="trash-2"></i> Delete
         </button>
       </td>
     `;
@@ -222,6 +220,30 @@ function updateAudioTable() {
 
   lucide.createIcons();
 }
+
+// Delete single audio
+async function handleDeleteAudio(audioId) {
+  if (!confirm('Are you sure you want to delete this audio?')) return;
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/admin/audio/${audioId}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+
+    if (response.ok) {
+      alert('Audio deleted successfully!');
+      await loadData();
+    } else {
+      const error = await response.json();
+      alert(error.error || 'Failed to delete audio');
+    }
+  } catch (error) {
+    console.error('Error deleting audio:', error);
+    alert('Error deleting audio');
+  }
+}
+
 
 // Update videos table
 function updateVideosTable() {

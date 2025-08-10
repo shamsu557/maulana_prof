@@ -101,47 +101,48 @@ router.get('/getBooks', (req, res) => {
   }
 );
 
-// Route to add a paper
-router.post('/addPaper', upload.fields([{ name: 'paperFile' }, { name: 'paperImage' }]), async (req, res) => {
-    const { paperTitle, username, password } = req.body; // Expecting username and password in the request body
-    const fileName = req.files['paperFile'][0].filename;
-    const imageName = req.files['paperImage'][0].filename;
-    const dateAdded = new Date();
+// ===== ADD AUDIO =====
+router.post('/', upload.single('audio_file'), (req, res) => {
+    const { title_english, title_arabic } = req.body;
+    const filePath = req.file ? req.file.filename : null;
 
-    // Check if admin exists and verify password
-    const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
+    if (!title_english || !title_arabic || !filePath) {
+        return res.status(400).json({ error: 'All fields are required' });
+    }
 
-    db.query(sqlCheckAdmin, [username], async (err, adminResult) => {
-        if (err || adminResult.length === 0) {
-            return res.status(403).json({ message: 'Invalid admin credentials' });
-        }
+    const sql = `
+        INSERT INTO audio (title_english, title_arabic, audio_file, created_at, updated_at)
+        VALUES (?, ?, ?, NOW(), NOW())
+    `;
+    db.query(sql, [title_english, title_arabic, filePath], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Audio added successfully', id: result.insertId });
+    });
+});
 
-        const admin = adminResult[0];
+// ===== DELETE AUDIO =====
+router.delete('/:id', (req, res) => {
+    const id = req.params.id;
 
-        // Compare the provided password with the hashed password in the database
-        const match = await bcrypt.compare(password, admin.password);
-        if (!match) {
-            return res.status(403).json({ message: 'Invalid admin credentials' });
-        }
+    // 1. Get file name from DB
+    db.query('SELECT audio_file FROM audio WHERE id = ?', [id], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (rows.length === 0) return res.status(404).json({ error: 'Audio not found' });
 
-        // Check if the paper title already exists in the database
-        const sqlCheckPaper = 'SELECT * FROM papers WHERE paperTitle = ?';
-        db.query(sqlCheckPaper, [paperTitle], (err, result) => {
-            if (err) throw err;
-            if (result.length > 0) {
-                return res.status(400).json({ message: 'Paper with this title already exists' });
-            }
+        const filePath = path.join(__dirname, '..', 'uploads', rows[0].audio_file);
 
-            // If no duplicate, proceed to add the paper
-            const sqlInsertPaper = 'INSERT INTO papers (paperTitle, file_name, date_added, image) VALUES (?, ?, ?, ?)';
-            db.query(sqlInsertPaper, [paperTitle, fileName, dateAdded, imageName], (err) => {
-                if (err) throw err;
-                res.status(201).json({ message: 'Paper added successfully!' });
+        // 2. Delete file from folder
+        fs.unlink(filePath, (err) => {
+            if (err) console.error('File delete error:', err);
+
+            // 3. Remove DB record
+            db.query('DELETE FROM audio WHERE id = ?', [id], (err) => {
+                if (err) return res.status(500).json({ error: err.message });
+                res.json({ message: 'Audio deleted successfully' });
             });
         });
     });
 });
-
 
 // Route to get all users
 router.get('/getUsers', (req, res) => {
@@ -155,7 +156,6 @@ router.get('/getUsers', (req, res) => {
     });
 });
 
-// Route to remove a user
 // DELETE book by ID
 router.delete('/books/:id', async (req, res) => {
   const bookId = req.params.id;
@@ -189,43 +189,78 @@ router.delete('/books/:id', async (req, res) => {
   });
 });
 
+// ======================= AUDIO ROUTES =======================
 
-// Route to remove a book
-router.delete('/removeBook/:id', async (req, res) => {
-    const bookId = req.params.id;
-    const { username, password } = req.body;
+// ADD audio
+router.post(
+  '/audio',
+  upload.fields([
+    { name: 'audio_file' } // match HTML input name
+  ]),
+  async (req, res) => {
+    const { title_english, title_arabic } = req.body;
+    const audioFile = req.files['audio_file'][0].filename;
+    const dateAdded = new Date();
 
-    // Log incoming request details
-    console.log(`Removing book with ID: ${bookId}, Username: ${username}`);
+    const sqlCheckAudio = 'SELECT * FROM audio WHERE title_english = ? OR title_arabic = ?';
+    db.query(sqlCheckAudio, [title_english, title_arabic], (err, result) => {
+      if (err) throw err;
+      if (result.length > 0) {
+        return res.status(400).json({ message: 'Audio with this title already exists' });
+      }
 
-    // Check if admin exists and verify password
-    const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
-
-    db.query(sqlCheckAdmin, [username], async (err, adminResult) => {
-        if (err || adminResult.length === 0) {
-            return res.status(403).json({ message: 'Invalid admin credentials' });
-        }
-
-        const admin = adminResult[0];
-
-        // Compare the provided password with the hashed password in the database
-        const match = await bcrypt.compare(password, admin.password);
-        if (!match) {
-            return res.status(403).json({ message: 'Invalid admin credentials' });
-        }
-
-        // If admin is valid, proceed to delete the book
-        const sqlDeleteBook = 'DELETE FROM books WHERE id = ? ';
-        db.query(sqlDeleteBook, [bookId], (err, result) => {
-            if (err) {
-                console.error('Error removing book:', err);
-                return res.status(500).json({ message: 'Error removing book' });
-            }
-            console.log(`Book with ID ${bookId} removed successfully.`);
-            res.json({ message: 'Book removed successfully!' });
-        });
+      const sqlInsertAudio = `
+        INSERT INTO audio (title_english, title_arabic, audio_file, date_added)
+        VALUES (?, ?, ?, ?)
+      `;
+      db.query(sqlInsertAudio, [title_english, title_arabic, audioFile, dateAdded], (err) => {
+        if (err) throw err;
+        res.status(201).json({ message: 'Audio added successfully!' });
+      });
     });
+  }
+);
+
+// DELETE audio by ID
+router.delete('/audio/:id', async (req, res) => {
+  const audioId = req.params.id;
+
+  // Get file name to delete from disk
+  const sqlGetFile = 'SELECT audio_file FROM audio WHERE id = ?';
+  db.query(sqlGetFile, [audioId], (err, result) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    if (result.length === 0) return res.status(404).json({ error: 'Audio not found' });
+
+    const { audio_file } = result[0];
+
+    // Delete DB record
+    const sqlDeleteAudio = 'DELETE FROM audio WHERE id = ?';
+    db.query(sqlDeleteAudio, [audioId], (err) => {
+      if (err) return res.status(500).json({ error: 'Failed to delete audio' });
+
+      // Optionally delete file from uploads folder
+      const fs = require('fs');
+      const path = require('path');
+
+      try {
+        if (audio_file) fs.unlinkSync(path.join(__dirname, '../uploads', audio_file));
+      } catch (fileErr) {
+        console.warn('Error deleting audio file:', fileErr.message);
+      }
+
+      res.json({ message: 'Audio deleted successfully' });
+    });
+  });
 });
+
+// GET all audio (for frontend table)
+router.get('/audio', (req, res) => {
+  db.query('SELECT id, title_english, title_arabic, audio_file FROM audio', (err, results) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    res.json(results);
+  });
+});
+
 
 // Route to remove a paper
 router.delete('/removePaper/:id', async (req, res) => {
