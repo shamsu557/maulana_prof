@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Creation</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+  <link rel="stylesheet" href="admins.css">
+</head>
+<body class="bg-light">
+
+<!-- Full Page Background -->
+<div class="min-vh-100 d-flex align-items-center justify-content-center p-4" 
+     style="background: linear-gradient(135deg, #e3f2fd 0%, #e8f5e8 100%);">
+
+  <!-- LOGIN CONTAINER -->
+  <div id="loginContainer" class="bg-white rounded-4 shadow-lg p-5 text-center" style="max-width: 420px; width: 100%;">
+    <img src="placeholder-user.jpg" alt="Prof. Ibrahim Ahmad Maqari"
+         class="rounded-circle border border-primary border-4 mb-3"
+         width="100" height="100" style="object-fit: cover;">
+    <h1 class="h4 fw-bold text-dark mb-2">Admin Login</h1>
+    <p class="text-muted small mb-4">Islamic Learning Platform</p>
+
+    <form id="loginForm">
+      <div class="mb-3 text-start">
+        <label for="loginUsername" class="form-label fw-medium">Username</label>
+        <div class="input-group">
+          <span class="input-group-text bg-light"><i class="fas fa-user text-muted"></i></span>
+          <input type="text" class="form-control" id="loginUsername" required>
+        </div>
+      </div>
+      <div class="mb-4 text-start">
+        <label for="loginPassword" class="form-label fw-medium">Password</label>
+        <div class="input-group">
+          <span class="input-group-text bg-light"><i class="fas fa-key text-muted"></i></span>
+          <input type="password" class="form-control" id="loginPassword" required>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary w-100 py-2 fw-medium"
+              style="background: linear-gradient(135deg, #0d6efd 0%, #198754 100%); border: none;">
+        <i class="fas fa-sign-in-alt me-2"></i> Login
+      </button>
+    </form>
+  </div>
+
+  <!-- SIGNUP CONTAINER (HIDDEN INITIALLY) -->
+  <div id="signupContainer" class="bg-white rounded-4 shadow-lg p-5" 
+       style="max-width: 600px; width: 100%; display: none;">
+    <div class="text-center mb-4">
+      <img src="placeholder-user.jpg" alt="Prof. Ibrahim Ahmad Maqari"
+           class="rounded-circle border border-primary border-4 mb-3"
+           width="90" height="90" style="object-fit: cover;">
+      <h2 class="h5 fw-bold text-dark">Admin Creation</h2>
+      <p class="text-muted small">Register a new admin account</p>
+    </div>
+    <form id="signupForm" action="/admin-signup" method="POST">
+      <div class="mb-3">
+        <label for="fullName" class="form-label">Full Name</label>
+        <input type="text" class="form-control" id="fullName" name="fullName" required>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input type="text" class="form-control" id="email" name="email" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="phone" class="form-label">Phone Number</label>
+          <input type="text" class="form-control" id="phone" name="phone" required>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="username" class="form-label">Username</label>
+          <input type="text" class="form-control" id="username" name="username" required>
+        </div>
+        <div class="col-md-6 mb-4">
+          <label for="password" class="form-label">Password</label>
+          <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary w-100 py-2"
+              style="background: linear-gradient(135deg, #0d6efd 0%, #198754 100%); border: none;">
+        <i class="fas fa-user-plus me-2"></i> Create Admin
+      </button>
+    </form>
+  </div>
+</div>
+
+<script src="admin-signup.js"></script>
+</body>
+</html>
