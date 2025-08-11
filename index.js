@@ -68,7 +68,7 @@ app.post('/admin-creation-login', (req, res) => {
 
 // Admin signup page
 app.get('/creation', (req, res) => {
-  res.sendFile(path.join(__dirname, 'admin-signup.html'));
+  res.sendFile(path.join(__dirname, 'creation.html'));
 });
 
 // Handle admin signup
@@ -145,6 +145,44 @@ app.get('/files/:fileName', (req, res) => {
     if (err) return res.status(404).send('File not found');
     res.download(filePath);
   });
+});
+
+
+// Fetch all audio
+app.get('/api/audio', (req, res) => {
+  const query = `
+    SELECT 
+      id, 
+      title_english, 
+      title_arabic, 
+      audio_file, 
+      date_added,
+      updated_at
+    FROM audio
+    ORDER BY date_added DESC
+  `;
+  
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching audio:', err);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+    res.json(results);
+  });
+});
+
+// Stream audio
+app.get('/audio/:fileName', (req, res) => {
+  const filePath = path.join(__dirname, req.params.fileName);
+  if (!fs.existsSync(filePath)) return res.status(404).send('File not found');
+  res.sendFile(filePath);
+});
+
+// Download audio
+app.get('/download/audio/:fileName', (req, res) => {
+  const filePath = path.join(__dirname, req.params.fileName);
+  if (!fs.existsSync(filePath)) return res.status(404).send('File not found');
+  res.download(filePath);
 });
 
 

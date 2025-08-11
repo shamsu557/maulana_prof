@@ -61,14 +61,6 @@ router.get('/is-logged-in', (req, res) => {
     }
 });
 
-// Route to get all books
-router.get('/getBooks', (req, res) => {
-    const sql = 'SELECT * FROM books';
-    db.query(sql, (err, results) => {
-        if (err) throw err;
-        res.json(results);
-    });
-});
 
     router.post(
   '/books',
@@ -101,60 +93,7 @@ router.get('/getBooks', (req, res) => {
   }
 );
 
-// ===== ADD AUDIO =====
-router.post('/', upload.single('audio_file'), (req, res) => {
-    const { title_english, title_arabic } = req.body;
-    const filePath = req.file ? req.file.filename : null;
 
-    if (!title_english || !title_arabic || !filePath) {
-        return res.status(400).json({ error: 'All fields are required' });
-    }
-
-    const sql = `
-        INSERT INTO audio (title_english, title_arabic, audio_file, created_at, updated_at)
-        VALUES (?, ?, ?, NOW(), NOW())
-    `;
-    db.query(sql, [title_english, title_arabic, filePath], (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: 'Audio added successfully', id: result.insertId });
-    });
-});
-
-// ===== DELETE AUDIO =====
-router.delete('/:id', (req, res) => {
-    const id = req.params.id;
-
-    // 1. Get file name from DB
-    db.query('SELECT audio_file FROM audio WHERE id = ?', [id], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (rows.length === 0) return res.status(404).json({ error: 'Audio not found' });
-
-        const filePath = path.join(__dirname, '..', 'uploads', rows[0].audio_file);
-
-        // 2. Delete file from folder
-        fs.unlink(filePath, (err) => {
-            if (err) console.error('File delete error:', err);
-
-            // 3. Remove DB record
-            db.query('DELETE FROM audio WHERE id = ?', [id], (err) => {
-                if (err) return res.status(500).json({ error: err.message });
-                res.json({ message: 'Audio deleted successfully' });
-            });
-        });
-    });
-});
-
-// Route to get all users
-router.get('/getUsers', (req, res) => {
-    const sql = 'SELECT id, fullname, email, created_at FROM users';
-    db.query(sql, (err, results) => {
-        if (err) {
-            console.error('Error fetching users:', err);
-            return res.status(500).json({ message: 'Error fetching users' });
-        }
-        res.json(results);
-    });
-});
 
 // DELETE book by ID
 router.delete('/books/:id', async (req, res) => {
@@ -189,7 +128,6 @@ router.delete('/books/:id', async (req, res) => {
   });
 });
 
-// ======================= AUDIO ROUTES =======================
 
 // ADD audio
 router.post(
@@ -253,50 +191,6 @@ router.delete('/audio/:id', async (req, res) => {
   });
 });
 
-// GET all audio (for frontend table)
-router.get('/audio', (req, res) => {
-  db.query('SELECT id, title_english, title_arabic, audio_file FROM audio', (err, results) => {
-    if (err) return res.status(500).json({ error: 'Database error' });
-    res.json(results);
-  });
-});
 
-
-// Route to remove a paper
-router.delete('/removePaper/:id', async (req, res) => {
-    const paperId = req.params.id;
-    const { username, password } = req.body;
-
-    // Log incoming request details
-    console.log(`Removing paper with ID: ${paperId}, Username: ${username}`);
-
-    // Check if admin exists and verify password
-    const sqlCheckAdmin = 'SELECT * FROM admins WHERE username = ?';
-
-    db.query(sqlCheckAdmin, [username], async (err, adminResult) => {
-        if (err || adminResult.length === 0) {
-            return res.status(403).json({ message: 'Invalid admin credentials' });
-        }
-
-        const admin = adminResult[0];
-
-        // Compare the provided password with the hashed password in the database
-        const match = await bcrypt.compare(password, admin.password);
-        if (!match) {
-            return res.status(403).json({ message: 'Invalid admin credentials' });
-        }
-
-        // If admin is valid, proceed to delete the paper
-        const sqlDeletePaper = 'DELETE FROM papers WHERE id = ?';
-        db.query(sqlDeletePaper, [paperId], (err, result) => {
-            if (err) {
-                console.error('Error removing paper:', err);
-                return res.status(500).json({ message: 'Error removing paper' });
-            }
-            console.log(`Paper with ID ${paperId} removed successfully.`);
-            res.json({ message: 'Paper removed successfully!' });
-        });
-    });
-});
 
 module.exports = router;

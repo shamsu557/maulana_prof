@@ -267,10 +267,18 @@ function createAudioCard(audio) {
                 </div>
                 <h5 class="card-title mb-3 ${currentLanguage === 'arabic' ? 'arabic' : ''}">${title}</h5>
                 <p class="card-text text-muted small mb-4 ${currentLanguage === 'arabic' ? 'arabic' : ''}">${description || ''}</p>
-                <button class="btn ${buttonClass} w-100" onclick="toggleAudio(${audio.id}, '${audio.audio_file}')">
+                
+                <!-- Play / Pause Button -->
+                <button class="btn ${buttonClass} w-100 mb-2" onclick="toggleAudio(${audio.id}, '${audio.audio_file}')">
                     <i data-lucide="${buttonIcon}" class="me-2"></i>
                     ${buttonText}
                 </button>
+                
+                <!-- Download Button -->
+                <a href="${audio.audio_file}" download class="btn btn-primary w-100">
+                    <i data-lucide="download" class="me-2"></i>
+                    ${t.download_btn || 'Download'}
+                </a>
             </div>
         </div>
     `;

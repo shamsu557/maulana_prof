@@ -98,6 +98,36 @@ function switchSection(section) {
 
   currentSection = section;
 }
+//load audio data
+async function loadAudioData() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/audio`);
+    if (!response.ok) {
+      throw new Error(`Failed to load audio: ${response.statusText}`);
+    }
+
+    const audioData = await response.json();
+
+    // Debug: check what the backend sends
+    console.log("Fetched audio data:", audioData);
+
+    // Store globally if needed
+    audio = audioData;
+
+    // Populate the table
+    updateAudioTable(audio);
+
+    // Update count
+    document.getElementById('total-audio').textContent = audio.length;
+
+  } catch (error) {
+    console.error("Error loading audio:", error);
+    document.getElementById('total-audio').textContent = 0;
+  }
+}
+
+// Call this separately
+loadAudioData();
 
 // Load all data
 async function loadData() {
@@ -105,7 +135,6 @@ async function loadData() {
     // Load all data in parallel
     const [booksRes, audioRes, videosRes, transactionsRes] = await Promise.all([
       fetch(`${API_BASE_URL}/api/books`),
-      fetch(`${API_BASE_URL}/api/audio`),
       fetch(`${API_BASE_URL}/api/videos`),
       fetch(`${API_BASE_URL}/api/transactions`),
     ]);
@@ -116,12 +145,7 @@ async function loadData() {
       document.getElementById('total-books').textContent = books.length;
     }
 
-    if (audioRes.ok) {
-      audio = await audioRes.json();
-      updateAudioTable();
-      document.getElementById('total-audio').textContent = audio.length;
-    }
-
+    
     if (videosRes.ok) {
       videos = await videosRes.json();
       updateVideosTable();
@@ -200,17 +224,18 @@ async function handleDeleteBook(bookId) {
 }
 
 // Update audio table
+// Update audio table
 function updateAudioTable() {
   const tbody = document.getElementById('audio-table-body');
   tbody.innerHTML = '';
 
-  audios.forEach(audio => {
+  audio.forEach(item => {   // Use 'audio' array, not 'audios'
     const row = document.createElement('tr');
     row.innerHTML = `
-      <td>${audio.title_english}</td>
-      <td class="arabic">${audio.title_arabic}</td>
+      <td>${item.title_english}</td>
+      <td class="arabic">${item.title_arabic}</td>
       <td>
-        <button class="btn btn-danger btn-sm" onclick="handleDeleteAudio(${audio.id})">
+        <button class="btn btn-danger btn-sm" onclick="handleDeleteAudio(${item.id})">
           <i data-lucide="trash-2"></i> Delete
         </button>
       </td>
@@ -233,7 +258,7 @@ async function handleDeleteAudio(audioId) {
 
     if (response.ok) {
       alert('Audio deleted successfully!');
-      await loadData();
+      await loadAudioData();
     } else {
       const error = await response.json();
       alert(error.error || 'Failed to delete audio');
@@ -243,7 +268,6 @@ async function handleDeleteAudio(audioId) {
     alert('Error deleting audio');
   }
 }
-
 
 // Update videos table
 function updateVideosTable() {
@@ -276,7 +300,6 @@ function updateVideosTable() {
 function updateTransactionsTable() {
   const tbody = document.getElementById('transactions-table-body');
   tbody.innerHTML = '';
-
   transactions.forEach(transaction => {
     const row = document.createElement('tr');
     const date = new Date(transaction.created_at || transaction.date).toLocaleDateString();
@@ -476,6 +499,7 @@ async function handleAddItem() {
     if (response.ok) {
       bootstrap.Modal.getInstance(document.getElementById('addModal')).hide();
       await loadData();
+      await loadAudioData();
       alert(`${currentModalType.charAt(0).toUpperCase() + currentModalType.slice(1)} added successfully!`);
     } else {
       const error = await response.json();
