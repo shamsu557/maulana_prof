@@ -6,6 +6,7 @@ const bcrypt = require('bcryptjs');
 const db = require('./mysql'); // Ensure mysql.js is configured correctly
 const adminRoutes = require('./admin-routes');
 const fs = require('fs');
+const nodemailer = require("nodemailer");
 
 const app = express();
 const saltRounds = 10; // bcrypt salt rounds
@@ -105,6 +106,66 @@ app.post('/creation', (req, res) => {
     });
   });
 });
+
+// Nodemailer transporter configuration for Gmail SMTP
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: '1440shamsusabo@gmail.com',
+    pass: 'cdwx syjc vctw jzmz',  // Use an App Password or OAuth2 token, NOT your Gmail login password
+  },
+});
+
+// Contact form submission route
+app.post("/send-message", (req, res) => {
+  const { name, email, phone, category, subject, message } = req.body;
+
+  if (!name || !email || !message || !category) {
+    return res.status(400).json({ error: "Please fill all required fields." });
+  }
+
+  // Insert data into messages table
+  const insertQuery = `
+    INSERT INTO messages (name, email, phone, category, subject, message, status, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, 'new', NOW(), NOW())
+  `;
+
+  db.query(insertQuery, [name, email, phone, category, subject, message], (err, results) => {
+    if (err) {
+      console.error("Error inserting message into database:", err);
+      return res.status(500).json({ error: "Failed to save your message. Please try again later." });
+    }
+
+    // Prepare email options
+    const mailOptions = {
+      from: `"${name}" <${email}>`,
+      to: "1440shamsusabo@gmail.com",
+      subject: subject || `Message from ${name} via Contact Form`,
+      text: `
+You have a new message from your website contact form:
+
+Name: ${name}
+Email: ${email}
+Phone: ${phone || "N/A"}
+Category: ${category}
+Subject: ${subject || "N/A"}
+Message:
+${message}
+      `,
+    };
+
+    // Send email
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending email:", error);
+        return res.status(500).json({ error: "Message saved but failed to send email notification." });
+      }
+      console.log("Email sent: " + info.response);
+      res.status(200).json({ message: "Your message has been sent successfully and saved." });
+    });
+  });
+});
+;
 
 // API Endpoint to fetch books for current app
 app.get('/api/books', (req, res) => {

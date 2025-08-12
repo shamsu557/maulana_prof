@@ -618,6 +618,8 @@ function showDonationModal() {
 }
 
 // Handle contact form submission
+document.getElementById('contact-form').addEventListener('submit', handleContactForm);
+
 async function handleContactForm(event) {
     event.preventDefault();
     
@@ -632,14 +634,20 @@ async function handleContactForm(event) {
     };
     
     const submitBtn = event.target.querySelector('button[type="submit"]');
-    const originalText = submitBtn.querySelector('span').textContent;
-    const t = translations[currentLanguage];
+    const span = submitBtn.querySelector('span');
+    const originalText = span ? span.textContent : submitBtn.textContent;
+    const t = translations[currentLanguage] || {
+      sending_message: "Sending message...",
+      message_sent: "Message sent successfully!",
+      message_failed: "Failed to send message.",
+      network_error: "Network error. Please try again."
+    };
     
     submitBtn.disabled = true;
-    submitBtn.querySelector('span').textContent = t.sending_message;
+    if (span) span.textContent = t.sending_message;
     
     try {
-        const response = await fetch('/api/contact', {
+        const response = await fetch('/send-message', {  // match your backend
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(contactData)
@@ -656,7 +664,7 @@ async function handleContactForm(event) {
         alert(t.network_error);
     } finally {
         submitBtn.disabled = false;
-        submitBtn.querySelector('span').textContent = originalText;
+        if (span) span.textContent = originalText;
     }
 }
 
