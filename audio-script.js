@@ -242,7 +242,7 @@ function createAudioCard(audio) {
     const buttonText = isPlaying ? t.pause_btn : t.play_btn;
     const buttonIcon = isPlaying ? 'pause' : 'play';
 
-    const audioImage = audio.image_file || 'audioImage.png';
+    const audioImage = audio.image_file || 'maulana.jfif';
 
     col.innerHTML = `
     <div class="card h-100 shadow-sm audio-card" style="height:200px;">
