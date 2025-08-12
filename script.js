@@ -290,7 +290,9 @@ function displayBooks() {
     const noBooks = document.getElementById('no-books');
     
     if (filteredBooks.length === 0) {
-        showNoBooks();
+        noBooks.textContent = 'No books found';  // Set message here
+        noBooks.classList.remove('d-none');
+        booksGrid.innerHTML = '';
         return;
     }
     
@@ -303,7 +305,6 @@ function displayBooks() {
     });
 }
 
-// Create book card element
 function createBookCard(book) {
     const col = document.createElement('div');
     col.className = 'col-6 col-sm-4 col-lg-3 col-xl-2';
@@ -313,32 +314,32 @@ function createBookCard(book) {
     
     col.innerHTML = `
         <div class="card book-card h-100 shadow-sm">
-            <div class="position-relative" style="aspect-ratio: 4/3;">
+            <div class="position-relative book-cover-container">
                 <img src="${book.cover_image 
                     ? `/${book.cover_image}` 
                     : `https://via.placeholder.com/300x400/0d6efd/ffffff?text=${encodeURIComponent(title)}`}" 
                      alt="${title}" 
                      class="card-img-top book-cover h-100 w-100">
             </div>
-            <div class="card-body p-2">
-  <h6 class="card-title book-title small fw-semibold mb-2 ${currentLanguage === 'arabic' ? 'arabic' : ''}">${title}</h6>
-  <div class="d-grid gap-1">
-    <button class="btn btn-primary btn-sm" onclick="readBook('${book.pdf_file}')">
-      <i data-lucide="eye" class="me-1" style="width: 12px; height: 12px;"></i>
-      ${t.read_btn}
-    </button>
-    <button class="btn btn-success btn-sm" onclick="downloadBook('${book.pdf_file}')">
-      <i data-lucide="download" class="me-1" style="width: 12px; height: 12px;"></i>
-      ${t.download_btn}
-    </button>
-  </div>
-</div>
-
+            <div class="card-body p-2 d-flex flex-column">
+                <h6 class="card-title book-title small fw-semibold mb-2 ${currentLanguage === 'arabic' ? 'arabic' : ''}">${title}</h6>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary btn-sm flex-fill" onclick="readBook('${book.pdf_file}')">
+                        <i data-lucide="eye" class="me-1" style="width: 12px; height: 12px;"></i>
+                        ${t.read_btn}
+                    </button>
+                    <button class="btn btn-success btn-sm flex-fill" onclick="downloadBook('${book.pdf_file}')">
+                        <i data-lucide="download" class="me-1" style="width: 12px; height: 12px;"></i>
+                        ${t.download_btn}
+                    </button>
+                </div>
+            </div>
         </div>
     `;
     
     return col;
 }
+
 
 // Show no books message
 function showNoBooks() {
