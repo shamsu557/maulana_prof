@@ -126,8 +126,37 @@ async function loadAudioData() {
   }
 }
 
+// Load video data
+async function loadVideoData() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/videos`);
+    if (!response.ok) {
+      throw new Error(`Failed to load videos: ${response.statusText}`);
+    }
+
+    const videoData = await response.json();
+
+    // Debug: check what the backend sends
+    console.log("Fetched video data:", videoData);
+
+    // Store globally if needed
+    videos = videoData;
+
+    // Populate the table or UI element for videos
+    updateVideosTable(videos);
+
+    // Update count
+    document.getElementById('total-videos').textContent = videos.length;
+
+  } catch (error) {
+    console.error("Error loading videos:", error);
+    document.getElementById('total-videos').textContent = 0;
+  }
+}
+
 // Call this separately
 loadAudioData();
+loadVideoData();
 
 // Load all data
 async function loadData() {
@@ -135,7 +164,6 @@ async function loadData() {
     // Load all data in parallel
     const [booksRes, audioRes, videosRes, transactionsRes] = await Promise.all([
       fetch(`${API_BASE_URL}/api/books`),
-      fetch(`${API_BASE_URL}/api/videos`),
       fetch(`${API_BASE_URL}/api/transactions`),
     ]);
 
@@ -144,14 +172,6 @@ async function loadData() {
       updateBooksTable();
       document.getElementById('total-books').textContent = books.length;
     }
-
-    
-    if (videosRes.ok) {
-      videos = await videosRes.json();
-      updateVideosTable();
-      document.getElementById('total-videos').textContent = videos.length;
-    }
-
     if (transactionsRes.ok) {
       transactions = await transactionsRes.json();
       updateTransactionsTable();
@@ -246,6 +266,7 @@ function updateAudioTable() {
   lucide.createIcons();
 }
 
+
 // Delete single audio
 async function handleDeleteAudio(audioId) {
   if (!confirm('Are you sure you want to delete this audio?')) return;
@@ -269,24 +290,20 @@ async function handleDeleteAudio(audioId) {
   }
 }
 
-// Update videos table
+// Update video table
 function updateVideosTable() {
   const tbody = document.getElementById('videos-table-body');
   tbody.innerHTML = '';
 
-  videos.forEach(video => {
+  videos.forEach(item => {
     const row = document.createElement('tr');
     row.innerHTML = `
-      <td>${video.title_english}</td>
-      <td class="arabic">${video.title_arabic}</td>
+      <td>${item.title_english}</td>
+      <td class="arabic">${item.title_arabic}</td>
+      
       <td>
-        <a href="${video.youtube_url || video.video_url}" target="_blank" class="btn btn-sm btn-outline-primary">
-          <i data-lucide="eye"></i>
-        </a>
-      </td>
-      <td>
-        <button class="btn btn-sm btn-outline-danger" onclick="showDeleteModal('videos', ${video.id}, '${video.title_english}')">
-          <i data-lucide="trash-2"></i>
+        <button class="btn btn-danger btn-sm" onclick="handleDeleteVideo(${item.id})">
+          <i data-lucide="trash-2"></i> Delete
         </button>
       </td>
     `;
@@ -294,6 +311,29 @@ function updateVideosTable() {
   });
 
   lucide.createIcons();
+}
+
+// Delete single video
+async function handleDeleteVideo(videoId) {
+  if (!confirm('Are you sure you want to delete this video?')) return;
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/admin/videos/${videoId}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+
+    if (response.ok) {
+      alert('Video deleted successfully!');
+      await loadVideoData();
+    } else {
+      const error = await response.json();
+      alert(error.error || 'Failed to delete video');
+    }
+  } catch (error) {
+    console.error('Error deleting video:', error);
+    alert('Error deleting video');
+  }
 }
 
 // Update transactions table
@@ -410,7 +450,7 @@ function generateFormFields(type) {
         </div>
         <div class="mb-3">
           <label class="form-label">YouTube Video URL</label>
-          <input type="url" class="form-control" name="youtube_url" placeholder="https://www.youtube.com/watch?v=..." required>
+          <input type="url" class="form-control" name="video_url" placeholder="https://www.youtube.com/watch?v=..." required>
         </div>
       `;
     case 'expense':
@@ -452,7 +492,7 @@ function generateFormFields(type) {
   }
 }
 
-// Handle add item
+//handle add item
 async function handleAddItem() {
   const form = document.getElementById('add-form');
   const formData = new FormData(form);
@@ -466,14 +506,15 @@ async function handleAddItem() {
     switch (currentModalType) {
       case 'book':
         endpoint = '/api/admin/books';
-        body = formData;
+        body = formData; // multipart/form-data
         break;
       case 'audio':
         endpoint = '/api/admin/audio';
-        body = formData;
+        body = formData; // multipart/form-data
         break;
       case 'video':
         endpoint = '/api/admin/videos';
+        // For video, send JSON instead of FormData
         body = JSON.stringify(Object.fromEntries(formData));
         headers['Content-Type'] = 'application/json';
         break;
@@ -500,6 +541,7 @@ async function handleAddItem() {
       bootstrap.Modal.getInstance(document.getElementById('addModal')).hide();
       await loadData();
       await loadAudioData();
+      await loadVideoData();
       alert(`${currentModalType.charAt(0).toUpperCase() + currentModalType.slice(1)} added successfully!`);
     } else {
       const error = await response.json();

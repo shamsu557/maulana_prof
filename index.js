@@ -185,6 +185,41 @@ app.get('/download/audio/:fileName', (req, res) => {
   res.download(filePath);
 });
 
+// Fetch all videos
+app.get('/api/videos', (req, res) => {
+  const query = `
+    SELECT 
+      id, 
+      title_english, 
+      title_arabic, 
+      date_added,
+      updated_at
+    FROM videos
+    ORDER BY date_added DESC
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching videos:', err);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+    res.json(results);
+  });
+});
+
+// Stream video
+app.get('/videos/:fileName', (req, res) => {
+  const filePath = path.join(__dirname, req.params.fileName);
+  if (!fs.existsSync(filePath)) return res.status(404).send('File not found');
+  res.sendFile(filePath);
+});
+
+// Download video
+app.get('/download/videos/:fileName', (req, res) => {
+  const filePath = path.join(__dirname, req.params.fileName);
+  if (!fs.existsSync(filePath)) return res.status(404).send('File not found');
+  res.download(filePath);
+});
 
 // Admin dashboard (protected)
 app.get('/admin-dashboard.html', isAdminAuthenticated, (req, res) => {

@@ -191,6 +191,79 @@ router.delete('/audio/:id', async (req, res) => {
   });
 });
 
+// GET all videos
+router.get('/videos', (req, res) => {
+  const sqlGetVideos = 'SELECT * FROM videos ORDER BY created_at DESC';
+  
+  db.query(sqlGetVideos, (err, results) => {
+    if (err) {
+      console.error('SQL error:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json(results);
+  });
+});
+
+// ADD video
+router.post('/videos', (req, res) => {
+  const { title_english, title_arabic, video_url } = req.body;
+
+  if (!title_english || !title_arabic || !video_url) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  // Check if video already exists by English or Arabic title
+  const sqlCheckVideo = 'SELECT * FROM videos WHERE title_english = ? OR title_arabic = ?';
+  db.query(sqlCheckVideo, [title_english, title_arabic], (err, result) => {
+    if (err) {
+      console.error('SQL error:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    if (result.length > 0) {
+      return res.status(400).json({ error: 'Video with this title already exists' });
+    }
+
+    // Insert new video record
+    const sqlInsertVideo = `
+      INSERT INTO videos (title_english, title_arabic, video_url, date_added, updated_at)
+      VALUES (?, ?, ?, NOW(), NOW())
+    `;
+    db.query(sqlInsertVideo, [title_english, title_arabic, video_url], (err) => {
+      if (err) {
+        console.error('SQL insert error:', err);
+        return res.status(500).json({ error: 'Failed to add video' });
+      }
+      res.status(201).json({ message: 'Video added successfully!' });
+    });
+  });
+});
+// DELETE video by ID
+router.delete('/videos/:id', (req, res) => {
+  const videoId = req.params.id;
+
+  // Check if video exists first
+  const sqlCheckVideo = 'SELECT * FROM videos WHERE id = ?';
+  db.query(sqlCheckVideo, [videoId], (err, result) => {
+    if (err) {
+      console.error('SQL error on check:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+
+    if (result.length === 0) {
+      return res.status(404).json({ message: 'Video not found' });
+    }
+
+    // Delete video record
+    const sqlDeleteVideo = 'DELETE FROM videos WHERE id = ?';
+    db.query(sqlDeleteVideo, [videoId], (err) => {
+      if (err) {
+        console.error('SQL error on delete:', err);
+        return res.status(500).json({ error: 'Failed to delete video' });
+      }
+      res.json({ message: 'Video deleted successfully' });
+    });
+  });
+});
 
 
 module.exports = router;
