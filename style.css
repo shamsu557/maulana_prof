@@ -195,7 +195,7 @@
 }
 
 .book-cover-container {
-    height: 90px;
+    height: 130px;
 }
 
 
@@ -425,7 +425,7 @@ footer .d-flex {
 
 @media (min-width: 992px) {
     .book-cover-container {
-        height: 160px;
+        height: 180px;
     }
 }
 
