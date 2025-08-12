@@ -701,6 +701,78 @@ function generateReport() {
   }
 }
 
+// Sidebar "Messages" button click
+document.querySelector('[data-section="messages"]').addEventListener('click', () => {
+    // Hide all other content sections
+    document.querySelectorAll('.content-section').forEach(sec => sec.classList.add('d-none'));
+
+    // Show the messages section
+    document.getElementById('messages-section').classList.remove('d-none');
+
+    // Load the messages
+    loadMessages();
+});
+
+// Fetch and display messages
+function loadMessages() {
+    fetch('/api/admin/messages', { cache: 'no-store' }) // force fresh data
+        .then(res => res.json())
+        .then(messages => {
+            const tbody = document.getElementById('messages-table-body');
+            tbody.innerHTML = '';
+
+            if (messages.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center">No messages found</td></tr>`;
+                return;
+            }
+
+            messages.forEach(msg => {
+                const tr = document.createElement('tr');
+                tr.classList.add('table-danger'); // All red since we now delete instead of treat
+
+                tr.innerHTML = `
+                    <td>${msg.name}</td>
+                    <td>${msg.email}</td>
+                    <td>${msg.phone || ''}</td>
+                    <td>${msg.category || ''}</td>
+                    <td>${msg.subject || ''}</td>
+                    <td>${msg.message}</td>
+                    <td>${new Date(msg.created_at).toLocaleString()}</td>
+                    <td>
+                        <button 
+                            class="btn btn-sm btn-danger"
+                            onclick="deleteMessage(${msg.id}, this)"
+                        >
+                            Treated ? Delete
+                        </button>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        })
+        .catch(err => {
+            console.error('Error loading messages:', err);
+        });
+}
+
+// Delete message
+function deleteMessage(id, btn) {
+    if (!confirm('Are you sure you want to delete this message?')) return;
+
+    fetch(`/api/admin/messages/${id}`, { method: 'DELETE' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                btn.closest('tr').remove();
+            } else {
+                console.error('Failed to delete message:', data.error);
+            }
+        })
+        .catch(err => {
+            console.error('Error deleting message:', err);
+        });
+}
 // Handle logout
 async function handleLogout() {
   try {

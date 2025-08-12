@@ -265,5 +265,37 @@ router.delete('/videos/:id', (req, res) => {
   });
 });
 
+// ======================
+// GET all messages
+// ======================
+router.get('/messages', (req, res) => {
+    const sql = 'SELECT * FROM messages ORDER BY created_at DESC';
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error('Error fetching messages:', err);
+            return res.status(500).json({ error: 'Database error' });
+        }
+        res.json(results);
+    });
+});
+
+// ======================
+// DELETE - Remove message
+// ======================
+router.delete('/messages/:id', (req, res) => {
+    const { id } = req.params;
+
+    const sql = 'DELETE FROM messages WHERE id = ?';
+    db.query(sql, [id], (err, result) => {
+        if (err) {
+            console.error('Error deleting message:', err);
+            return res.status(500).json({ error: 'Database error' });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Message not found' });
+        }
+        res.json({ success: true });
+    });
+});
 
 module.exports = router;

@@ -45,10 +45,12 @@
                         <button class="nav-link sidebar-btn" data-section="transactions">
                             <i data-lucide="dollar-sign" class="me-2"></i> Transactions
                         </button>
-                        <button class="nav-link sidebar-btn" data-section="assistants">
-                            <i data-lucide="users" class="me-2"></i> Assistant Admins
+          
+      
+                        <button class="nav-link sidebar-btn" data-section="messages">
+                             <i data-lucide="mail" class="me-2"></i> Messages
                         </button>
-                        <button class="nav-link mt-3 text-danger" onclick="handleLogout()">
+                          <button class="nav-link mt-3 text-danger" onclick="handleLogout()">
                             <i data-lucide="log-out" class="me-2"></i> Logout
                         </button>
                     </div>
@@ -186,7 +188,25 @@
                         </div>
                     </div>
 
-                    
+                <div id="messages-section" class="content-section">
+  <h2>Manage Messages</h2>
+
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Message</th>
+          <th>Created At</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="messages-table-body"></tbody>
+    </table>
+  </div>
+</div>
+    
                 </main>
             </div>
         </div>
