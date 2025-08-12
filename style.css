@@ -227,6 +227,27 @@
     line-height: 1.6;
 }
 
+/* Responsive card heights */
+.audio-card {
+    height: 160px; /* default small screen height */
+}
+@media (min-width: 992px) {
+    .audio-card {
+        height: 150px; /* large screen height */
+    }
+}
+
+/* Image height adjustments */
+.audio-img {
+    height: 130px; /* small screen image height */
+    object-fit: cover;
+}
+@media (min-width: 992px) {
+    .audio-img {
+        height: 150px; /* slightly larger image on big screens */
+    }
+}
+
 /* Back to top button */
 #back-to-top {
     width: 50px;

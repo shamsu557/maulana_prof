@@ -23,6 +23,7 @@ const translations = {
         loading_audio: "Loading audio...",
         play_btn: "Play",
         pause_btn: "Pause",
+        download_btn: "Download",
         footer_contact_title: "Contact Information",
         footer_email: "📧 1440shamsusabo@gmail.com",
         footer_phone: "📞 08030909793",
@@ -65,6 +66,7 @@ const translations = {
         loading_audio: "جاري تحميل الصوتيات...",
         play_btn: "تشغيل",
         pause_btn: "إيقاف",
+        download_btn: "تحميل",
         footer_contact_title: "معلومات الاتصال",
         footer_email: "📧 1440shamsusabo@gmail.com",
         footer_phone: "📞 08030909793",
@@ -101,37 +103,27 @@ document.addEventListener('DOMContentLoaded', function() {
     loadPaystackScript();
     setupEventListeners();
     loadAudio();
-    
-    // Initialize Lucide icons
     lucide.createIcons();
 });
 
 // Initialize application
 function initializeApp() {
-    // Load saved language
     const savedLanguage = localStorage.getItem('language') || 'english';
     currentLanguage = savedLanguage;
     updateLanguage();
-    
-    // Setup scroll listener for back to top button
     window.addEventListener('scroll', handleScroll);
 }
 
 // Setup event listeners
 function setupEventListeners() {
-    // Search functionality
     document.getElementById('search-input').addEventListener('input', handleSearch);
-    
-    // Back to top button
     document.getElementById('back-to-top').addEventListener('click', scrollToTop);
-    
-    // Navbar toggle logic with cancel button
+
     const toggler = document.querySelector('.navbar-toggler');
     const cancel = document.querySelector('.navbar-cancel');
     const navbarNav = document.querySelector('#navbarNav');
 
     if (toggler && cancel && navbarNav) {
-        // Show cancel button and hide toggler when navbar opens
         toggler.addEventListener('click', function() {
             setTimeout(() => {
                 if (navbarNav.classList.contains('show')) {
@@ -140,28 +132,20 @@ function setupEventListeners() {
                 }
             }, 10);
         });
-        
-        // Hide cancel button and show toggler when navbar closes
         cancel.addEventListener('click', function() {
             toggler.style.display = 'block';
             cancel.style.display = 'none';
             bootstrap.Collapse.getInstance(navbarNav).hide();
         });
-        
-        // Handle Bootstrap collapse events
         navbarNav.addEventListener('hidden.bs.collapse', function() {
             toggler.style.display = 'block';
             cancel.style.display = 'none';
         });
-        
         navbarNav.addEventListener('shown.bs.collapse', function() {
             toggler.style.display = 'none';
             cancel.style.display = 'block';
         });
-        
-        // Handle clicks on navbar links to close navbar
-        const navLinks = navbarNav.querySelectorAll('.nav-link, .btn');
-        navLinks.forEach(link => {
+        navbarNav.querySelectorAll('.nav-link, .btn').forEach(link => {
             link.addEventListener('click', function() {
                 if (navbarNav.classList.contains('show')) {
                     bootstrap.Collapse.getInstance(navbarNav).hide();
@@ -171,7 +155,7 @@ function setupEventListeners() {
     }
 }
 
-// Function to collapse navbar
+// Collapse navbar
 function collapseNavbar() {
     const navbarCollapse = document.getElementById('navbarNav');
     if (navbarCollapse && navbarCollapse.classList.contains('show')) {
@@ -187,7 +171,6 @@ function loadPaystackScript() {
         hidePaystackLoading();
         return;
     }
-    
     setTimeout(() => {
         if (window.PaystackPop) {
             paystackLoaded = true;
@@ -199,9 +182,7 @@ function loadPaystackScript() {
 // Hide Paystack loading indicator
 function hidePaystackLoading() {
     const loadingElement = document.getElementById('paystack-loading');
-    if (loadingElement) {
-        loadingElement.style.display = 'none';
-    }
+    if (loadingElement) loadingElement.style.display = 'none';
 }
 
 // Load audio from API
@@ -226,63 +207,67 @@ async function loadAudio() {
     }
 }
 
-// Display audio in grid
+// Display audio
 function displayAudio() {
     const audioGrid = document.getElementById('audio-grid');
     const noAudio = document.getElementById('no-audio');
-    
+
     if (filteredAudio.length === 0) {
         showNoAudio();
         return;
     }
-    
+
     noAudio.classList.add('d-none');
     audioGrid.innerHTML = '';
-    
+
     filteredAudio.forEach(audio => {
         const audioCard = createAudioCard(audio);
         audioGrid.appendChild(audioCard);
     });
+
+    lucide.createIcons();
 }
 
-// Create audio card element
+// Create audio card
 function createAudioCard(audio) {
     const col = document.createElement('div');
-    col.className = 'col-md-6 col-lg-4';
-    
+    col.className = 'col-6 col-md-4 col-lg-3 col-xl-2 mb-4';
+
     const title = currentLanguage === 'arabic' ? audio.title_arabic : audio.title_english;
     const description = currentLanguage === 'arabic' ? audio.description_arabic : audio.description_english;
     const t = translations[currentLanguage];
-    
+
     const isPlaying = currentlyPlaying === audio.id;
     const buttonClass = isPlaying ? 'btn-danger' : 'btn-success';
     const buttonText = isPlaying ? t.pause_btn : t.play_btn;
     const buttonIcon = isPlaying ? 'pause' : 'play';
-    
+
+    const audioImage = audio.image_file || 'audioImage.png';
+
     col.innerHTML = `
-        <div class="card h-100 shadow-sm audio-card">
-            <div class="card-body text-center">
-                <div class="mb-3">
-                    <i data-lucide="volume-2" class="text-success" style="width: 64px; height: 64px;"></i>
+    <div class="card h-100 shadow-sm audio-card" style="height:200px;">
+        <img src="${audioImage}" class="card-img-top" alt="${title}" 
+             style="height:130px;object-fit:cover;">
+        <div class="card-body text-center d-flex flex-column p-2">
+            <h5 class="card-title mb-1 ${currentLanguage === 'arabic' ? 'arabic' : ''}">${title}</h5>
+            <p class="card-text text-muted small mb-2 ${currentLanguage === 'arabic' ? 'arabic' : ''}">${description || ''}</p>
+            <div class="mt-auto">
+                <div class="d-flex gap-2 justify-content-center">
+                    <button class="btn ${buttonClass} w-50" 
+                            onclick="toggleAudio(${audio.id}, '${audio.audio_file}')">
+                        <i data-lucide="${buttonIcon}" class="me-1"></i>
+                        ${buttonText}
+                    </button>
+                    <a href="${audio.audio_file}" download class="btn btn-primary w-50">
+                        <i data-lucide="download" class="me-1"></i>
+                        ${t.download_btn}
+                    </a>
                 </div>
-                <h5 class="card-title mb-3 ${currentLanguage === 'arabic' ? 'arabic' : ''}">${title}</h5>
-                <p class="card-text text-muted small mb-4 ${currentLanguage === 'arabic' ? 'arabic' : ''}">${description || ''}</p>
-                
-                <!-- Play / Pause Button -->
-                <button class="btn ${buttonClass} w-100 mb-2" onclick="toggleAudio(${audio.id}, '${audio.audio_file}')">
-                    <i data-lucide="${buttonIcon}" class="me-2"></i>
-                    ${buttonText}
-                </button>
-                
-                <!-- Download Button -->
-                <a href="${audio.audio_file}" download class="btn btn-primary w-100">
-                    <i data-lucide="download" class="me-2"></i>
-                    ${t.download_btn || 'Download'}
-                </a>
             </div>
         </div>
-    `;
-    
+    </div>
+`;
+
     return col;
 }
 
