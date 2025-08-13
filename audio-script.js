@@ -25,6 +25,10 @@ const translations = {
         loading_audio: "Loading audio...",
         play_btn: "Play",
         pause_btn: "Pause",
+        stop_btn: "Stop",
+        volume_label: "Volume",
+        mute_btn: "Mute",
+        unmute_btn: "Unmute",
         download_btn: "Download",
         back_to_sections: "Back to Sections",
         footer_contact_title: "Contact Information",
@@ -70,6 +74,10 @@ const translations = {
         loading_audio: "جاري تحميل الصوتيات...",
         play_btn: "تشغيل",
         pause_btn: "إيقاف",
+        stop_btn: "توقف",
+        volume_label: "مستوى الصوت",
+        mute_btn: "كتم الصوت",
+        unmute_btn: "إلغاء الكتم",
         download_btn: "تحميل",
         back_to_sections: "العودة إلى الأقسام",
         footer_contact_title: "معلومات الاتصال",
@@ -312,9 +320,23 @@ function displayAudio() {
     filteredAudio.forEach(audio => {
         const audioCard = createAudioCard(audio);
         audioGrid.appendChild(audioCard);
+        
+        // Attach seek listener after card is added to DOM
+        attachSeekListener(audio.id);
     });
     
     lucide.createIcons();
+}
+
+// Format time for progress bar (mm:ss)
+function formatTime(seconds) {
+    if (isNaN(seconds) || seconds === Infinity || seconds < 0) {
+        console.warn('Invalid time value:', seconds);
+        return "0:00";
+    }
+    const minutes = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
 }
 
 // Create audio card
@@ -334,29 +356,83 @@ function createAudioCard(audio) {
     const audioImage = audio.image_file || 'maulana6.jfif';
 
     col.innerHTML = `
-        <div class="card h-100 shadow-sm audio-card" style="height:200px;">
+        <div class="card h-100 shadow-sm audio-card" style="height:300px;">
             <img src="${audioImage}" class="card-img-top" alt="${title}" 
                  style="height:130px;object-fit:cover;">
             <div class="card-body text-center d-flex flex-column p-2">
                 <h5 class="card-title mb-1 ${currentLanguage === 'arabic' ? 'arabic' : ''}">${title}</h5>
                 <p class="card-text text-muted small mb-2 ${currentLanguage === 'arabic' ? 'arabic' : ''}">${description || ''}</p>
                 <div class="mt-auto">
-                    <div class="d-flex gap-2 justify-content-center">
+                    <div class="d-flex gap-2 justify-content-center mb-2">
                         <button class="btn btn-primary btn-sm flex-fill" onclick="toggleAudio(${audio.id}, '${audio.audio_file}')">
                             <i data-lucide="${buttonIcon}" class="me-1" style="width: 12px; height: 12px;"></i>
-                            ${buttonText}
+                            <span id="play-pause-text-${audio.id}">${buttonText}</span>
                         </button>
-                        <a href="/download/audio/${audio.audio_file}" download class="btn btn-success btn-sm flex-fill">
-                            <i data-lucide="download" class="me-1" style="width: 12px; height: 12px;"></i>
-                            ${t.download_btn}
-                        </a>
+                        <button class="btn btn-secondary btn-sm flex-fill" onclick="stopAudio(${audio.id})">
+                            <i data-lucide="square" class="me-1" style="width: 12px; height: 12px;"></i>
+                            ${t.stop_btn}
+                        </button>
                     </div>
+                    <div class="progress mb-2" style="height: 8px;" id="progress-container-${audio.id}">
+                        <div id="progress-bar-${audio.id}" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span id="current-time-${audio.id}" class="small">0:00</span>
+                        <span id="duration-${audio.id}" class="small">0:00</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-outline-secondary btn-sm" onclick="toggleMute(${audio.id})">
+                            <i id="mute-icon-${audio.id}" data-lucide="volume-2" style="width: 12px; height: 12px;"></i>
+                            <span id="mute-text-${audio.id}">${t.mute_btn}</span>
+                        </button>
+                        <input type="range" id="volume-slider-${audio.id}" class="form-range flex-fill" min="0" max="1" step="0.01" value="1" oninput="adjustVolume(${audio.id}, this.value)">
+                    </div>
+                    <a href="/download/audio/${audio.audio_file}" download class="btn btn-success btn-sm mt-2 w-100">
+                        <i data-lucide="download" class="me-1" style="width: 12px; height: 12px;"></i>
+                        ${t.download_btn}
+                    </a>
                 </div>
             </div>
         </div>
     `;
 
     return col;
+}
+
+// Attach seek listener to progress container
+function attachSeekListener(audioId) {
+    const audioElement = audioElements[audioId];
+    const progressContainer = document.getElementById(`progress-container-${audioId}`);
+    
+    if (!progressContainer) {
+        console.warn('Progress container not found for audio ID:', audioId);
+        return;
+    }
+    
+    // Remove existing listeners to prevent duplicates
+    progressContainer.removeEventListener('click', seekHandler);
+    progressContainer.addEventListener('click', seekHandler);
+    
+    function seekHandler(e) {
+        if (!audioElement || isNaN(audioElement.duration) || audioElement.duration <= 0) {
+            console.warn('Cannot seek: Invalid audio element or duration', {
+                audioId,
+                duration: audioElement?.duration
+            });
+            return;
+        }
+        const rect = progressContainer.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const width = rect.width;
+        if (width <= 0) {
+            console.warn('Invalid progress container width:', width, 'for audio ID:', audioId);
+            return;
+        }
+        const seekTime = (clickX / width) * audioElement.duration;
+        console.log('Seeking to:', seekTime, 'seconds for audio ID:', audioId);
+        audioElement.currentTime = seekTime;
+        updateProgress(audioId);
+    }
 }
 
 // Show no audio message
@@ -564,6 +640,7 @@ function toggleAudio(audioId, audioFile) {
         if (currentAudio) {
             currentAudio.pause();
             currentAudio.currentTime = 0;
+            updateProgress(currentlyPlaying);
         }
     }
     
@@ -573,6 +650,7 @@ function toggleAudio(audioId, audioFile) {
         if (audioElement) {
             audioElement.pause();
             setCurrentlyPlaying(null);
+            updateProgress(audioId);
         }
     } else {
         let audioElement = audioElements[audioId];
@@ -583,11 +661,27 @@ function toggleAudio(audioId, audioFile) {
             audioElement.addEventListener('ended', () => {
                 console.log('Audio ended:', audioFile);
                 setCurrentlyPlaying(null);
+                updateProgress(audioId);
             });
             audioElement.addEventListener('error', (e) => {
                 console.error('Audio playback error:', e);
                 alert(translations[currentLanguage].audio_error);
                 setCurrentlyPlaying(null);
+            });
+            audioElement.addEventListener('loadedmetadata', () => {
+                console.log('Metadata loaded for audio:', audioFile, 'Duration:', audioElement.duration);
+                const durationElement = document.getElementById(`duration-${audioId}`);
+                if (durationElement && !isNaN(audioElement.duration) && audioElement.duration > 0) {
+                    durationElement.textContent = formatTime(audioElement.duration);
+                } else {
+                    console.warn('Invalid duration for audio:', audioFile, 'Duration:', audioElement.duration);
+                }
+            });
+            audioElement.addEventListener('canplaythrough', () => {
+                console.log('Audio can play through:', audioFile);
+            });
+            audioElement.addEventListener('timeupdate', () => {
+                updateProgress(audioId);
             });
             audioElements[audioId] = audioElement;
         }
@@ -595,10 +689,94 @@ function toggleAudio(audioId, audioFile) {
         audioElement.play().then(() => {
             console.log('Playing audio:', audioFile);
             setCurrentlyPlaying(audioId);
+            updateProgress(audioId); // Force initial progress update
         }).catch((error) => {
             console.error('Audio play error:', error, 'URL:', audioUrl);
             alert(translations[currentLanguage].audio_error);
         });
+    }
+}
+
+// Stop audio
+function stopAudio(audioId) {
+    const audioElement = audioElements[audioId];
+    if (audioElement) {
+        audioElement.pause();
+        audioElement.currentTime = 0;
+        setCurrentlyPlaying(null);
+        updateProgress(audioId);
+    }
+}
+
+// Update progress bar and time
+function updateProgress(audioId) {
+    const audioElement = audioElements[audioId];
+    const progressBar = document.getElementById(`progress-bar-${audioId}`);
+    const currentTimeElement = document.getElementById(`current-time-${audioId}`);
+    const durationElement = document.getElementById(`duration-${audioId}`);
+    
+    if (!audioElement || !progressBar || !currentTimeElement || !durationElement) {
+        console.warn('Missing elements for progress update:', {
+            audioElement: !!audioElement,
+            progressBar: !!progressBar,
+            currentTimeElement: !!currentTimeElement,
+            durationElement: !!durationElement,
+            audioId
+        });
+        return;
+    }
+    
+    if (!isNaN(audioElement.duration) && audioElement.duration > 0) {
+        const progress = (audioElement.currentTime / audioElement.duration) * 100;
+        progressBar.style.width = `${progress}%`;
+        progressBar.setAttribute('aria-valuenow', progress);
+        currentTimeElement.textContent = formatTime(audioElement.currentTime);
+        durationElement.textContent = formatTime(audioElement.duration);
+        console.log('Progress updated:', {
+            audioId,
+            currentTime: audioElement.currentTime,
+            duration: audioElement.duration,
+            progress: progress.toFixed(2) + '%'
+        });
+    } else {
+        progressBar.style.width = '0%';
+        progressBar.setAttribute('aria-valuenow', 0);
+        currentTimeElement.textContent = '0:00';
+        durationElement.textContent = '0:00';
+        console.log('Reset progress: Invalid duration for audio ID:', audioId, 'Duration:', audioElement.duration);
+    }
+}
+
+// Toggle mute
+function toggleMute(audioId) {
+    const audioElement = audioElements[audioId];
+    const muteIcon = document.getElementById(`mute-icon-${audioId}`);
+    const muteText = document.getElementById(`mute-text-${audioId}`);
+    const volumeSlider = document.getElementById(`volume-slider-${audioId}`);
+    const t = translations[currentLanguage];
+
+    if (audioElement && muteIcon && muteText && volumeSlider) {
+        audioElement.muted = !audioElement.muted;
+        muteIcon.setAttribute('data-lucide', audioElement.muted ? 'volume-x' : 'volume-2');
+        muteText.textContent = audioElement.muted ? t.unmute_btn : t.mute_btn;
+        volumeSlider.value = audioElement.muted ? 0 : audioElement.volume;
+        lucide.createIcons();
+    }
+}
+
+// Adjust volume
+function adjustVolume(audioId, volume) {
+    const audioElement = audioElements[audioId];
+    const muteIcon = document.getElementById(`mute-icon-${audioId}`);
+    const muteText = document.getElementById(`mute-text-${audioId}`);
+    const t = translations[currentLanguage];
+
+    if (audioElement && muteIcon && muteText) {
+        audioElement.volume = parseFloat(volume);
+        audioElement.muted = volume == 0;
+        muteIcon.setAttribute('data-lucide', audioElement.muted ? 'volume-x' : 'volume-2');
+        muteText.textContent = audioElement.muted ? t.unmute_btn : t.mute_btn;
+        lucide.createIcons();
     }
 }
 
