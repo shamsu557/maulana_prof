@@ -62,11 +62,46 @@ module.exports = db;
 //     id INT AUTO_INCREMENT PRIMARY KEY,
 //     title_english VARCHAR(255) NOT NULL,
 //     title_arabic VARCHAR(255) NOT NULL,
+//     section VARCHAR(255) NOT NULL DEFAULT
+//     section_arabic VARCHAR(255);
 //     audio_file VARCHAR(255) NOT NULL,
 //     date_added DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 //     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 // );
-
+//        UPDATE audio SET section_arabic = CASE section
+//   WHEN 'Sahihul Bukhari' THEN 'صحيح البخاري'
+//   WHEN 'Sahihul Bukhari (Bita Tare Da Malamai)' THEN 'صحيح البخاري (بيت التاريخ مع المعلمين)'
+//   WHEN 'Sahihul Muslim' THEN 'صحيح مسلم'
+//   WHEN 'Muwadda Malik' THEN 'مواضع مالك'
+//   WHEN 'Attajul Jamiu Lil usul' THEN 'التاج الجامع للأصول'
+//   WHEN 'Bulughul Maram' THEN 'بلوغ المرام'
+//   WHEN 'Ihya''u Ulumiddeen' THEN 'إحياء علوم الدين'
+//   WHEN 'Jam''ul Jawami''i Fi Ilmi Usulil Fiqh' THEN 'جامع الجوامع في علم أصول الفقه'
+//   WHEN 'Lectures' THEN 'محاضرات'
+//   WHEN 'Discussions' THEN 'مناقشات'
+//   WHEN 'Majlisi' THEN 'مجلسي'
+//   WHEN 'Questions & Answers 2013' THEN 'أسئلة وأجوبة 2013'
+//   WHEN 'Questions & Answers 2014' THEN 'أسئلة وأجوبة 2014'
+//   WHEN 'Questions & Answers 2015' THEN 'أسئلة وأجوبة 2015'
+//   WHEN 'Questions & Answers 2016' THEN 'أسئلة وأجوبة 2016'
+//   WHEN 'Questions & Answers 2017' THEN 'أسئلة وأجوبة 2017'
+//   WHEN 'Questions & Answers 2018' THEN 'أسئلة وأجوبة 2018'
+//   WHEN 'Questions & Answers 2019' THEN 'أسئلة وأجوبة 2019'
+//   WHEN 'Tafseer 2013' THEN 'تفسير 2013'
+//   WHEN 'Tafseer 2014' THEN 'تفسير 2014'
+//   WHEN 'Tafseer 2015' THEN 'تفسير 2015'
+//   WHEN 'Tafseer 2016' THEN 'تفسير 2016'
+//   WHEN 'Tafseer 2017' THEN 'تفسير 2017'
+//   WHEN 'Tafseer 2018' THEN 'تفسير 2018'
+//   WHEN 'Tafseer 2019' THEN 'تفسير 2019'
+//   WHEN 'Tafseer 2020' THEN 'تفسير 2020'
+//   WHEN 'Tafseer 2021' THEN 'تفسير 2021'
+//   WHEN 'Tafseer 2022' THEN 'تفسير 2022'
+//   WHEN 'Tafseer 2023' THEN 'تفسير 2023'
+//   WHEN 'Tafseer 2024' THEN 'تفسير 2024'
+//   WHEN 'Tafseer 2025' THEN 'تفسير 2025'
+//   ELSE section
+// END;
 // CREATE TABLE videos (
 //     id INT AUTO_INCREMENT PRIMARY KEY,
 //     title_english VARCHAR(255) NOT NULL,
@@ -75,5 +110,17 @@ module.exports = db;
 //     video_url VARCHAR(500) NOT NULL,
    
 //     date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+//     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+// );
+// CREATE TABLE messages (
+//     id INT AUTO_INCREMENT PRIMARY KEY,
+//     name VARCHAR(100) NOT NULL,
+//     email VARCHAR(150) NOT NULL,
+//     phone VARCHAR(20),
+//     category VARCHAR(100),
+//     subject VARCHAR(200),
+//     message TEXT NOT NULL,
+//     status VARCHAR(20) DEFAULT 'Untreated',
+//     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 //     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 // );
