@@ -447,7 +447,7 @@ function generateFormFields(type) {
               <option value="Jam'ul Jawami'i Fi Ilmi Usulil Fiqh">Jam'ul Jawami'i Fi Ilmi Usulil Fiqh</option>
               <option value="Lectures">Lectures</option>
               <option value="Discussions">Discussions</option>
-              <option value="Majlisi">Majlisi</option>
+              <option value="Lecture">Lecture</option>
               <option value="Questions & Answers 2013">Questions & Answers 2013</option>
               <option value="Questions & Answers 2014">Questions & Answers 2014</option>
               <option value="Questions & Answers 2015">Questions & Answers 2015</option>
@@ -484,7 +484,7 @@ function generateFormFields(type) {
               <option value="جامع الجوامع في علم أصول الفقه">جامع الجوامع في علم أصول الفقه</option>
               <option value="محاضرات">محاضرات</option>
               <option value="مناقشات">مناقشات</option>
-              <option value="مجلسي">مجلسي</option>
+              <option value="محاضرة">محاضرة</option>
               <option value="أسئلة وأجوبة 2013">أسئلة وأجوبة 2013</option>
               <option value="أسئلة وأجوبة 2014">أسئلة وأجوبة 2014</option>
               <option value="أسئلة وأجوبة 2015">أسئلة وأجوبة 2015</option>

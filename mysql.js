@@ -79,7 +79,7 @@ module.exports = db;
 //   WHEN 'Jam''ul Jawami''i Fi Ilmi Usulil Fiqh' THEN 'جامع الجوامع في علم أصول الفقه'
 //   WHEN 'Lectures' THEN 'محاضرات'
 //   WHEN 'Discussions' THEN 'مناقشات'
-//   WHEN 'Majlisi' THEN 'مجلسي'
+//   WHEN 'Lecture' THEN 'محاضرة'
 //   WHEN 'Questions & Answers 2013' THEN 'أسئلة وأجوبة 2013'
 //   WHEN 'Questions & Answers 2014' THEN 'أسئلة وأجوبة 2014'
 //   WHEN 'Questions & Answers 2015' THEN 'أسئلة وأجوبة 2015'
