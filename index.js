@@ -7,7 +7,6 @@ const db = require('./mysql'); // Ensure mysql.js is configured correctly
 const adminRoutes = require('./admin-routes');
 const fs = require('fs');
 const nodemailer = require("nodemailer");
-
 const app = express();
 const saltRounds = 10; // bcrypt salt rounds
 
@@ -265,24 +264,20 @@ app.get('/api/videos', (req, res) => {
   db.query(query, (err, results) => {
     if (err) {
       console.error('Error fetching videos:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error', details: err.message });
     }
     res.json(results);
   });
 });
 
-// Stream video
+// Stream video (for local files)
 app.get('/videos/:fileName', (req, res) => {
-  const filePath = path.join(__dirname, req.params.fileName);
-  if (!fs.existsSync(filePath)) return res.status(404).send('File not found');
+  const filePath = path.join(__dirname, 'videos', req.params.fileName);
+  if (!fs.existsSync(filePath)) {
+    console.error('File not found:', filePath);
+    return res.status(404).json({ error: 'File not found' });
+  }
   res.sendFile(filePath);
-});
-
-// Download video
-app.get('/download/videos/:fileName', (req, res) => {
-  const filePath = path.join(__dirname, req.params.fileName);
-  if (!fs.existsSync(filePath)) return res.status(404).send('File not found');
-  res.download(filePath);
 });
 
 // Admin dashboard (protected)

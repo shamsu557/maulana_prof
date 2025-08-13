@@ -23,7 +23,6 @@ const translations = {
         filter_youtube: "YouTube",
         filter_local: "Local Videos",
         watch_btn: "Play",
-        download_btn: "Download",
         close_video: "Close",
         footer_contact_title: "Contact Information",
         footer_email: "📧 1440shamsusabo@gmail.com",
@@ -71,7 +70,6 @@ const translations = {
         filter_youtube: "يوتيوب",
         filter_local: "فيديوهات محلية",
         watch_btn: "تشغيل",
-        download_btn: "تنزيل",
         close_video: "إغلاق",
         footer_contact_title: "معلومات الاتصال",
         footer_email: "📧 1440shamsusabo@gmail.com",
@@ -193,15 +191,6 @@ function initializeApp() {
         .btn-primary:hover {
             background-color: #0056b3;
             border-color: #004085;
-        }
-
-        .btn-outline-secondary {
-            border-color: #6c757d;
-        }
-
-        .btn-outline-secondary:hover {
-            background-color: #6c757d;
-            color: #fff;
         }
 
         .d-flex.gap-2 {
@@ -408,7 +397,6 @@ function createVideoCard(video) {
     
     const ytVideoId = extractYouTubeVideoId(video.video_url);
     const thumbnail = ytVideoId ? `https://img.youtube.com/vi/${ytVideoId}/hqdefault.jpg` : 'https://via.placeholder.com/170?text=No+Thumbnail';
-    const fileName = `${video.id}.mp4`; // Assuming local file name is id.mp4
     
     col.innerHTML = `
         <div class="card h-100 shadow-sm video-card" data-type="youtube">
@@ -428,14 +416,10 @@ function createVideoCard(video) {
             </div>
             <div class="card-body">
                 <h5 class="card-title mb-2 ${currentLanguage === 'arabic' ? 'arabic' : ''}">${title}</h5>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-primary flex-fill" onclick="playVideo(${video.id}, '${encodeURIComponent(title)}', '${encodeURIComponent(video.video_url || '')}')">
+                <div class="d-flex justify-content-center">
+                    <button class="btn btn-primary w-100" onclick="playVideo(${video.id}, '${encodeURIComponent(title)}', '${encodeURIComponent(video.video_url || '')}')">
                         <i data-lucide="play" class="me-2"></i>
                         ${t.watch_btn}
-                    </button>
-                    <button class="btn btn-outline-secondary flex-fill" onclick="downloadVideo('${encodeURIComponent(fileName)}')">
-                        <i data-lucide="download" class="me-2"></i>
-                        ${t.download_btn}
                     </button>
                 </div>
             </div>
@@ -470,14 +454,10 @@ function createPlaceholderCard(video) {
             </div>
             <div class="card-body">
                 <h5 class="card-title mb-2 ${currentLanguage === 'arabic' ? 'arabic' : ''}">${title}</h5>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-secondary flex-fill" disabled>
+                <div class="d-flex justify-content-center">
+                    <button class="btn btn-secondary w-100" disabled>
                         <i data-lucide="play" class="me-2"></i>
                         ${t.invalid_video_url}
-                    </button>
-                    <button class="btn btn-outline-secondary flex-fill" disabled>
-                        <i data-lucide="download" class="me-2"></i>
-                        ${t.download_btn}
                     </button>
                 </div>
             </div>
@@ -511,12 +491,6 @@ function extractYouTubeVideoId(url) {
         console.error('Error parsing YouTube URL:', error, 'URL:', url);
         return null;
     }
-}
-
-function downloadVideo(encodedFileName) {
-    const fileName = decodeURIComponent(encodedFileName);
-    console.log('Attempting to download video:', fileName);
-    window.location.href = `/download/videos/${fileName}`;
 }
 
 function showNoVideos() {
@@ -565,7 +539,7 @@ function applyFilters(searchTerm, filterType) {
     
     if (searchTerm) {
         filtered = filtered.filter(video => {
-            const title = currentLanguage === 'arabic' ? video.title_arabic : video.title_english;
+            const title = currentLanguage === 'arabic' ? video.title_arabic : a.title_english;
             return title.toLowerCase().includes(searchTerm);
         });
     }
