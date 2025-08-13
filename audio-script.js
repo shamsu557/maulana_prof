@@ -53,7 +53,8 @@ const translations = {
         no_audio_found: "No audio found matching your search.",
         processing_payment: "Processing payment...",
         payment_success: "Payment successful! Thank you for your donation.",
-        payment_failed: "Payment failed. Please try again."
+        payment_failed: "Payment failed. Please try again.",
+        audio_error: "Error playing audio. Please check your connection or try again later."
     },
     arabic: {
         site_title: "أ. إ. أ. مقاري",
@@ -97,7 +98,8 @@ const translations = {
         no_audio_found: "لم يتم العثور على صوتيات تطابق بحثك.",
         processing_payment: "جاري معالجة الدفع...",
         payment_success: "تم الدفع بنجاح! شكراً لك على تبرعك.",
-        payment_failed: "فشل الدفع. يرجى المحاولة مرة أخرى."
+        payment_failed: "فشل الدفع. يرجى المحاولة مرة أخرى.",
+        audio_error: "خطأ في تشغيل الصوت. يرجى التحقق من الاتصال أو المحاولة لاحقًا."
     }
 };
 
@@ -212,8 +214,13 @@ async function loadAudio() {
                 return nameA.localeCompare(nameB, currentLanguage === 'arabic' ? 'ar' : 'en');
             });
             
+            // Log audio files for debugging
+            console.log('Loaded audio files:', audioFiles);
+            
             // Initially show sections
             displaySections();
+        } else {
+            throw new Error(`HTTP error! Status: ${response.status}`);
         }
     } catch (error) {
         console.error('Error loading audio:', error);
@@ -269,6 +276,7 @@ function displaySections() {
 function selectSection(section) {
     selectedSection = section;
     filteredAudio = audioFiles.filter(audio => audio.section === section);
+    console.log('Selected section:', section, 'Filtered audio:', filteredAudio);
     displayAudio();
     showAudiosView();
 }
@@ -338,7 +346,7 @@ function createAudioCard(audio) {
                             <i data-lucide="${buttonIcon}" class="me-1" style="width: 12px; height: 12px;"></i>
                             ${buttonText}
                         </button>
-                        <a href="${audio.audio_file}" download class="btn btn-success btn-sm flex-fill">
+                        <a href="/download/audio/${audio.audio_file}" download class="btn btn-success btn-sm flex-fill">
                             <i data-lucide="download" class="me-1" style="width: 12px; height: 12px;"></i>
                             ${t.download_btn}
                         </a>
@@ -569,23 +577,27 @@ function toggleAudio(audioId, audioFile) {
     } else {
         let audioElement = audioElements[audioId];
         if (!audioElement) {
-            audioElement = new Audio(`/uploads/audio/${audioFile}`);
+            const audioUrl = `/audio/${audioFile}`;
+            console.log('Attempting to play audio:', audioUrl);
+            audioElement = new Audio(audioUrl);
             audioElement.addEventListener('ended', () => {
+                console.log('Audio ended:', audioFile);
                 setCurrentlyPlaying(null);
             });
             audioElement.addEventListener('error', (e) => {
                 console.error('Audio playback error:', e);
-                alert(translations[currentLanguage].no_audio_found);
+                alert(translations[currentLanguage].audio_error);
                 setCurrentlyPlaying(null);
             });
             audioElements[audioId] = audioElement;
         }
         
         audioElement.play().then(() => {
+            console.log('Playing audio:', audioFile);
             setCurrentlyPlaying(audioId);
         }).catch((error) => {
-            console.error('Audio play error:', error);
-            alert(translations[currentLanguage].no_audio_found);
+            console.error('Audio play error:', error, 'URL:', audioUrl);
+            alert(translations[currentLanguage].audio_error);
         });
     }
 }
