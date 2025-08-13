@@ -256,6 +256,7 @@ app.get('/api/videos', (req, res) => {
       title_english, 
       title_arabic, 
       date_added,
+      video_url,
       updated_at
     FROM videos
     ORDER BY date_added DESC

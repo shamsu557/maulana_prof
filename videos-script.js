@@ -1,4 +1,3 @@
-// Global variables
 let currentLanguage = 'english';
 let videoFiles = [];
 let filteredVideos = [];
@@ -7,7 +6,6 @@ let paystackLoaded = false;
 let paymentLoading = false;
 let currentVideoModal = null;
 
-// Translations object
 const translations = {
     english: {
         site_title: "Prof. I. A. Maqari",
@@ -24,7 +22,8 @@ const translations = {
         filter_all: "All Videos",
         filter_youtube: "YouTube",
         filter_local: "Local Videos",
-        watch_btn: "Watch",
+        watch_btn: "Play",
+        download_btn: "Download",
         close_video: "Close",
         footer_contact_title: "Contact Information",
         footer_email: "📧 1440shamsusabo@gmail.com",
@@ -52,7 +51,9 @@ const translations = {
         no_videos_found: "No videos found matching your search.",
         processing_payment: "Processing payment...",
         payment_success: "Payment successful! Thank you for your donation.",
-        payment_failed: "Payment failed. Please try again."
+        payment_failed: "Payment failed. Please try again.",
+        invalid_video_url: "Invalid or missing video URL. Please try another video.",
+        api_error: "Failed to load videos. Please check your connection or contact support."
     },
     arabic: {
         site_title: "أ. إ. أ. مقاري",
@@ -69,7 +70,8 @@ const translations = {
         filter_all: "جميع الفيديوهات",
         filter_youtube: "يوتيوب",
         filter_local: "فيديوهات محلية",
-        watch_btn: "مشاهدة",
+        watch_btn: "تشغيل",
+        download_btn: "تنزيل",
         close_video: "إغلاق",
         footer_contact_title: "معلومات الاتصال",
         footer_email: "📧 1440shamsusabo@gmail.com",
@@ -97,52 +99,149 @@ const translations = {
         no_videos_found: "لم يتم العثور على فيديوهات تطابق بحثك.",
         processing_payment: "جاري معالجة الدفع...",
         payment_success: "تم الدفع بنجاح! شكراً لك على تبرعك.",
-        payment_failed: "فشل الدفع. يرجى المحاولة مرة أخرى."
+        payment_failed: "فشل الدفع. يرجى المحاولة مرة أخرى.",
+        invalid_video_url: "رابط الفيديو غير صالح أو مفقود. يرجى تجربة فيديو آخر.",
+        api_error: "فشل تحميل الفيديوهات. يرجى التحقق من الاتصال أو التواصل مع الدعم."
     }
 };
 
-// Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Initializing application...');
     initializeApp();
     loadPaystackScript();
     setupEventListeners();
     loadVideos();
-    
-    // Initialize Lucide icons
-    lucide.createIcons();
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    } else {
+        console.error('Lucide library not loaded!');
+    }
 });
 
-// Initialize application
 function initializeApp() {
-    // Load saved language
+    console.log('Setting up language, styles, and scroll listener...');
     const savedLanguage = localStorage.getItem('language') || 'english';
     currentLanguage = savedLanguage;
+
+    // Add styles to document head
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Arial', sans-serif;
+        }
+
+        .arabic {
+            font-family: 'Amiri', serif !important;
+            text-align: justify;
+        }
+
+        .video-card {
+            transition: transform 0.3s ease;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .video-thumbnail {
+            width: 170px;
+            height: 170px;
+            object-fit: cover;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .card-title {
+            font-size: 0.7rem;
+            font-weight: 400;
+            line-height: 1.4;
+            max-height: 2.8rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .card-title.arabic {
+            font-size: 0.8rem;
+            font-weight: 400;
+            font-family: 'Amiri', serif;
+        }
+
+        .card {
+            min-height: 280px;
+            max-height: 280px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-body {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+
+        .btn-outline-secondary {
+            border-color: #6c757d;
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: #6c757d;
+            color: #fff;
+        }
+
+        .d-flex.gap-2 {
+            gap: 0.5rem;
+        }
+    `;
+    document.head.appendChild(styleElement);
+
     updateLanguage();
-    
-    // Setup scroll listener for back to top button
     window.addEventListener('scroll', handleScroll);
 }
 
-// Setup event listeners
 function setupEventListeners() {
-    // Search functionality
-    document.getElementById('search-input').addEventListener('input', handleSearch);
+    console.log('Setting up event listeners...');
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', handleSearch);
+    } else {
+        console.error('Search input not found!');
+    }
     
-    // Filter buttons
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', handleFilter);
-    });
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    if (filterButtons.length > 0) {
+        filterButtons.forEach(btn => btn.addEventListener('click', handleFilter));
+    } else {
+        console.warn('No filter buttons found!');
+    }
     
-    // Back to top button
-    document.getElementById('back-to-top').addEventListener('click', scrollToTop);
+    const backToTop = document.getElementById('back-to-top');
+    if (backToTop) {
+        backToTop.addEventListener('click', scrollToTop);
+    } else {
+        console.error('Back to top button not found!');
+    }
     
-    // Navbar toggle logic with cancel button
     const toggler = document.querySelector('.navbar-toggler');
     const cancel = document.querySelector('.navbar-cancel');
     const navbarNav = document.querySelector('#navbarNav');
 
     if (toggler && cancel && navbarNav) {
-        // Show cancel button and hide toggler when navbar opens
         toggler.addEventListener('click', function() {
             setTimeout(() => {
                 if (navbarNav.classList.contains('show')) {
@@ -152,14 +251,16 @@ function setupEventListeners() {
             }, 10);
         });
         
-        // Hide cancel button and show toggler when navbar closes
         cancel.addEventListener('click', function() {
             toggler.style.display = 'block';
             cancel.style.display = 'none';
-            bootstrap.Collapse.getInstance(navbarNav).hide();
+            if (typeof bootstrap !== 'undefined') {
+                bootstrap.Collapse.getInstance(navbarNav).hide();
+            } else {
+                console.error('Bootstrap not loaded!');
+            }
         });
         
-        // Handle Bootstrap collapse events
         navbarNav.addEventListener('hidden.bs.collapse', function() {
             toggler.style.display = 'block';
             cancel.style.display = 'none';
@@ -170,20 +271,37 @@ function setupEventListeners() {
             cancel.style.display = 'block';
         });
         
-        // Handle clicks on navbar links to close navbar
         const navLinks = navbarNav.querySelectorAll('.nav-link, .btn');
         navLinks.forEach(link => {
             link.addEventListener('click', function() {
                 if (navbarNav.classList.contains('show')) {
-                    bootstrap.Collapse.getInstance(navbarNav).hide();
+                    if (typeof bootstrap !== 'undefined') {
+                        bootstrap.Collapse.getInstance(navbarNav).hide();
+                    }
                 }
             });
         });
+    } else {
+        console.error('Navbar elements missing:', { toggler, cancel, navbarNav });
+    }
+
+    const videoModal = document.getElementById('videoModal');
+    if (videoModal) {
+        videoModal.addEventListener('hidden.bs.modal', function() {
+            console.log('Video modal closed, clearing video container...');
+            const videoContainer = document.getElementById('video-container');
+            if (videoContainer) {
+                videoContainer.innerHTML = '';
+            }
+            currentVideoModal = null;
+        });
+    } else {
+        console.error('Video modal not found!');
     }
 }
 
-// Load Paystack script
 function loadPaystackScript() {
+    console.log('Loading Paystack script...');
     if (window.PaystackPop) {
         paystackLoaded = true;
         hidePaystackLoading();
@@ -194,46 +312,62 @@ function loadPaystackScript() {
         if (window.PaystackPop) {
             paystackLoaded = true;
             hidePaystackLoading();
+        } else {
+            console.warn('Paystack script not loaded after timeout!');
         }
     }, 2000);
 }
 
-// Hide Paystack loading indicator
 function hidePaystackLoading() {
     const loadingElement = document.getElementById('paystack-loading');
     if (loadingElement) {
         loadingElement.style.display = 'none';
+    } else {
+        console.error('Paystack loading element not found!');
     }
 }
 
-// Load videos from API
 async function loadVideos() {
+    console.log('Fetching videos from /api/videos...');
     try {
         const response = await fetch('/api/videos');
-        if (response.ok) {
-            const data = await response.json();
-            videoFiles = data.sort((a, b) => {
-                const titleA = currentLanguage === 'arabic' ? a.title_arabic : a.title_english;
-                const titleB = currentLanguage === 'arabic' ? b.title_arabic : b.title_english;
-                return titleA.localeCompare(titleB, currentLanguage === 'arabic' ? 'ar' : 'en');
-            });
-            filteredVideos = [...videoFiles];
-            displayVideos();
+        console.log('API response status:', response.status);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
         }
+        const data = await response.json();
+        console.log('API response data:', data);
+        if (!Array.isArray(data)) {
+            throw new Error('Invalid API response: Expected array');
+        }
+        videoFiles = data.sort((a, b) => {
+            const titleA = currentLanguage === 'arabic' ? a.title_arabic : a.title_english;
+            const titleB = currentLanguage === 'arabic' ? b.title_arabic : b.title_english;
+            return titleA.localeCompare(titleB, currentLanguage === 'arabic' ? 'ar' : 'en');
+        });
+        console.log('Sorted videos:', videoFiles);
+        filteredVideos = [...videoFiles];
+        displayVideos();
     } catch (error) {
         console.error('Error loading videos:', error);
+        alert(translations[currentLanguage].api_error);
         showNoVideos();
     } finally {
         hideLoadingSpinner();
     }
 }
 
-// Display videos in grid
 function displayVideos() {
     const videosGrid = document.getElementById('videos-grid');
     const noVideos = document.getElementById('no-videos');
     
+    if (!videosGrid || !noVideos) {
+        console.error('Grid or no-videos element missing:', { videosGrid, noVideos });
+        return;
+    }
+    
     if (filteredVideos.length === 0) {
+        console.log('No videos to display');
         showNoVideos();
         return;
     }
@@ -241,42 +375,51 @@ function displayVideos() {
     noVideos.classList.add('d-none');
     videosGrid.innerHTML = '';
     
+    let validVideos = 0;
     filteredVideos.forEach(video => {
-        const videoCard = createVideoCard(video);
-        videosGrid.appendChild(videoCard);
+        const ytVideoId = extractYouTubeVideoId(video.video_url);
+        console.log('Processing video:', { id: video.id, title: video.title_english || video.title_arabic, video_url: video.video_url, ytVideoId });
+        if (video.video_url && ytVideoId) {
+            console.log('Adding video to grid:', video.title_english || video.title_arabic);
+            const videoCard = createVideoCard(video);
+            videosGrid.appendChild(videoCard);
+            validVideos++;
+        } else {
+            console.warn('Skipping video with invalid or missing URL:', { id: video.id, title: video.title_english || video.title_arabic, video_url: video.video_url });
+            const placeholderCard = createPlaceholderCard(video);
+            videosGrid.appendChild(placeholderCard);
+        }
     });
+    
+    if (validVideos === 0 && filteredVideos.length > 0) {
+        console.log('No valid videos found, but placeholders added');
+    } else if (validVideos === 0) {
+        console.log('No valid videos found');
+        showNoVideos();
+    }
 }
 
-// Create video card element
 function createVideoCard(video) {
     const col = document.createElement('div');
-    col.className = 'col-md-6 col-lg-4';
+    col.className = 'col-6 col-lg-3 mb-3';
     
     const title = currentLanguage === 'arabic' ? video.title_arabic : video.title_english;
-    const description = currentLanguage === 'arabic' ? video.description_arabic : video.description_english;
     const t = translations[currentLanguage];
     
-    // Determine video type and thumbnail
-    const isYouTube = video.youtube_url && video.youtube_url.trim();
-    const videoType = isYouTube ? 'youtube' : 'local';
-    const thumbnail = video.thumbnail || (isYouTube ? getYouTubeThumbnail(video.youtube_url) : '/placeholder-video.jpg');
-    
-    // Format duration
-    const duration = video.duration ? formatDuration(video.duration) : '';
+    const ytVideoId = extractYouTubeVideoId(video.video_url);
+    const thumbnail = ytVideoId ? `https://img.youtube.com/vi/${ytVideoId}/hqdefault.jpg` : 'https://via.placeholder.com/170?text=No+Thumbnail';
+    const fileName = `${video.id}.mp4`; // Assuming local file name is id.mp4
     
     col.innerHTML = `
-        <div class="card h-100 shadow-sm video-card" data-type="${videoType}">
+        <div class="card h-100 shadow-sm video-card" data-type="youtube">
             <div class="position-relative">
-                <img src="${thumbnail}" alt="${title}" class="card-img-top video-thumbnail" style="height: 200px; object-fit: cover;">
+                <img src="${thumbnail}" alt="${title}" class="card-img-top video-thumbnail">
                 <div class="position-absolute top-0 end-0 m-2">
-                    <span class="badge ${isYouTube ? 'bg-danger' : 'bg-primary'}">
-                        <i data-lucide="${isYouTube ? 'youtube' : 'video'}" class="me-1" style="width: 12px; height: 12px;"></i>
-                        ${isYouTube ? 'YouTube' : 'Local'}
+                    <span class="badge bg-danger">
+                        <i data-lucide="youtube" class="me-1" style="width: 12px; height: 12px;"></i>
+                        YouTube
                     </span>
                 </div>
-                ${duration ? `<div class="position-absolute bottom-0 end-0 m-2">
-                    <span class="badge bg-dark bg-opacity-75">${duration}</span>
-                </div>` : ''}
                 <div class="position-absolute top-50 start-50 translate-middle">
                     <div class="btn btn-light btn-lg rounded-circle shadow" style="width: 60px; height: 60px;">
                         <i data-lucide="play" class="text-primary"></i>
@@ -285,11 +428,16 @@ function createVideoCard(video) {
             </div>
             <div class="card-body">
                 <h5 class="card-title mb-2 ${currentLanguage === 'arabic' ? 'arabic' : ''}">${title}</h5>
-                <p class="card-text text-muted small mb-3 ${currentLanguage === 'arabic' ? 'arabic' : ''}">${description || ''}</p>
-                <button class="btn btn-primary w-100" onclick="playVideo(${video.id}, '${title}', '${description || ''}', '${video.youtube_url || ''}', '${video.video_file || ''}')">
-                    <i data-lucide="play" class="me-2"></i>
-                    ${t.watch_btn}
-                </button>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary flex-fill" onclick="playVideo(${video.id}, '${encodeURIComponent(title)}', '${encodeURIComponent(video.video_url || '')}')">
+                        <i data-lucide="play" class="me-2"></i>
+                        ${t.watch_btn}
+                    </button>
+                    <button class="btn btn-outline-secondary flex-fill" onclick="downloadVideo('${encodeURIComponent(fileName)}')">
+                        <i data-lucide="download" class="me-2"></i>
+                        ${t.download_btn}
+                    </button>
+                </div>
             </div>
         </div>
     `;
@@ -297,50 +445,111 @@ function createVideoCard(video) {
     return col;
 }
 
-// Get YouTube thumbnail URL
+function createPlaceholderCard(video) {
+    const col = document.createElement('div');
+    col.className = 'col-6 col-lg-3 mb-3';
+    
+    const title = currentLanguage === 'arabic' ? video.title_arabic : video.title_english;
+    const t = translations[currentLanguage];
+    
+    col.innerHTML = `
+        <div class="card h-100 shadow-sm video-card" data-type="youtube">
+            <div class="position-relative">
+                <img src="https://via.placeholder.com/170?text=No+Thumbnail" alt="${title}" class="card-img-top video-thumbnail">
+                <div class="position-absolute top-0 end-0 m-2">
+                    <span class="badge bg-danger">
+                        <i data-lucide="youtube" class="me-1" style="width: 12px; height: 12px;"></i>
+                        YouTube
+                    </span>
+                </div>
+                <div class="position-absolute top-50 start-50 translate-middle">
+                    <div class="btn btn-light btn-lg rounded-circle shadow" style="width: 60px; height: 60px;">
+                        <i data-lucide="x" class="text-danger"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title mb-2 ${currentLanguage === 'arabic' ? 'arabic' : ''}">${title}</h5>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-secondary flex-fill" disabled>
+                        <i data-lucide="play" class="me-2"></i>
+                        ${t.invalid_video_url}
+                    </button>
+                    <button class="btn btn-outline-secondary flex-fill" disabled>
+                        <i data-lucide="download" class="me-2"></i>
+                        ${t.download_btn}
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    return col;
+}
+
 function getYouTubeThumbnail(url) {
-    const videoId = extractYouTubeVideoId(url);
-    return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : '/placeholder-video.jpg';
+    const ytVideoId = extractYouTubeVideoId(url);
+    return ytVideoId ? `https://img.youtube.com/vi/${ytVideoId}/hqdefault.jpg` : 'https://via.placeholder.com/170?text=No+Thumbnail';
 }
 
-// Extract YouTube video ID from URL
 function extractYouTubeVideoId(url) {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
+    try {
+        if (!url || typeof url !== 'string') {
+            console.error('Invalid or missing YouTube URL:', url);
+            return null;
+        }
+        const cleanUrl = url.split('?')[0];
+        const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+        const match = cleanUrl.match(regExp);
+        if (match && match[1].length === 11) {
+            console.log('Extracted YouTube video ID:', match[1], 'from URL:', url);
+            return match[1];
+        }
+        console.error('No valid YouTube ID found in URL:', url);
+        return null;
+    } catch (error) {
+        console.error('Error parsing YouTube URL:', error, 'URL:', url);
+        return null;
+    }
 }
 
-// Format duration from seconds to MM:SS
-function formatDuration(seconds) {
-    if (!seconds) return '';
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+function downloadVideo(encodedFileName) {
+    const fileName = decodeURIComponent(encodedFileName);
+    console.log('Attempting to download video:', fileName);
+    window.location.href = `/download/videos/${fileName}`;
 }
 
-// Show no videos message
 function showNoVideos() {
-    document.getElementById('no-videos').classList.remove('d-none');
-    document.getElementById('videos-grid').innerHTML = '';
+    const noVideos = document.getElementById('no-videos');
+    if (noVideos) {
+        noVideos.textContent = translations[currentLanguage].no_videos_found;
+        noVideos.classList.remove('d-none');
+        document.getElementById('videos-grid').innerHTML = '';
+    } else {
+        console.error('No-videos element not found!');
+    }
 }
 
-// Hide loading spinner
 function hideLoadingSpinner() {
-    document.getElementById('loading-spinner').style.display = 'none';
+    const spinner = document.getElementById('loading-spinner');
+    if (spinner) {
+        spinner.style.display = 'none';
+    } else {
+        console.error('Loading spinner not found!');
+    }
 }
 
-// Handle search
 function handleSearch(event) {
     const searchTerm = event.target.value.toLowerCase().trim();
+    console.log('Search term:', searchTerm);
     applyFilters(searchTerm, currentFilter);
 }
 
-// Handle filter buttons
 function handleFilter(event) {
     const filterType = event.currentTarget.dataset.filter;
     currentFilter = filterType;
     
-    // Update active filter button
+    console.log('Applying filter:', filterType);
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.classList.remove('active');
     });
@@ -350,61 +559,54 @@ function handleFilter(event) {
     applyFilters(searchTerm, filterType);
 }
 
-// Apply search and filter
 function applyFilters(searchTerm, filterType) {
+    console.log('Applying filters - Search:', searchTerm, 'Type:', filterType);
     let filtered = [...videoFiles];
     
-    // Apply search filter
     if (searchTerm) {
         filtered = filtered.filter(video => {
             const title = currentLanguage === 'arabic' ? video.title_arabic : video.title_english;
-            const description = currentLanguage === 'arabic' ? video.description_arabic : video.description_english;
-            return title.toLowerCase().includes(searchTerm) || 
-                   (description && description.toLowerCase().includes(searchTerm));
+            return title.toLowerCase().includes(searchTerm);
         });
     }
     
-    // Apply type filter
     if (filterType !== 'all') {
         filtered = filtered.filter(video => {
             if (filterType === 'youtube') {
-                return video.youtube_url && video.youtube_url.trim();
-            } else if (filterType === 'local') {
-                return video.video_file && video.video_file.trim();
+                return video.video_url && video.video_url.trim() && extractYouTubeVideoId(video.video_url);
             }
-            return true;
+            return false;
         });
     }
     
     filteredVideos = filtered;
+    console.log('Filtered videos:', filteredVideos);
     displayVideos();
 }
 
-// Handle scroll for back to top button
 function handleScroll() {
     const backToTop = document.getElementById('back-to-top');
-    if (window.pageYOffset > 300) {
-        backToTop.classList.remove('d-none');
-    } else {
-        backToTop.classList.add('d-none');
+    if (backToTop) {
+        if (window.pageYOffset > 300) {
+            backToTop.classList.remove('d-none');
+        } else {
+            backToTop.classList.add('d-none');
+        }
     }
 }
 
-// Scroll to top
 function scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Toggle language
 function toggleLanguage() {
-    // Collapse navbar first
+    console.log('Toggling language to:', currentLanguage === 'english' ? 'arabic' : 'english');
     collapseNavbar();
     
     currentLanguage = currentLanguage === 'english' ? 'arabic' : 'english';
     localStorage.setItem('language', currentLanguage);
     updateLanguage();
     
-    // Re-sort and display videos
     if (videoFiles.length > 0) {
         videoFiles.sort((a, b) => {
             const titleA = currentLanguage === 'arabic' ? a.title_arabic : a.title_english;
@@ -417,15 +619,13 @@ function toggleLanguage() {
     }
 }
 
-// Update language in UI
 function updateLanguage() {
+    console.log('Updating UI language to:', currentLanguage);
     const t = translations[currentLanguage];
     
-    // Update HTML attributes
     document.documentElement.dir = currentLanguage === 'arabic' ? 'rtl' : 'ltr';
     document.documentElement.lang = currentLanguage === 'arabic' ? 'ar' : 'en';
     
-    // Update all text content
     const textElements = {
         'site-title': t.site_title,
         'nav-home': t.nav_home,
@@ -468,24 +668,24 @@ function updateLanguage() {
         'donate-now-text': paymentLoading ? t.processing_payment : t.donate_now
     };
     
-    // Update all text elements
     Object.entries(textElements).forEach(([id, text]) => {
         const element = document.getElementById(id);
         if (element) {
             element.textContent = text;
+        } else {
+            console.warn(`Element with ID ${id} not found`);
         }
     });
     
-    // Update placeholders
     const searchInput = document.getElementById('search-input');
     if (searchInput) {
         searchInput.placeholder = t.search_placeholder;
+    } else {
+        console.error('Search input not found for placeholder update!');
     }
     
-    // Update form placeholders
     updateFormPlaceholders(t);
     
-    // Add Arabic class where needed
     const elementsToStyle = [
         'site-title', 'videos-title', 'search-input', 'donation-modal-title', 
         'donation-modal-subtitle', 'donation-message', 'footer-contact-title', 
@@ -500,17 +700,19 @@ function updateLanguage() {
             } else {
                 element.classList.remove('arabic');
             }
+        } else {
+            console.warn(`Style element with ID ${id} not found`);
         }
     });
     
-    // Update form inputs direction
     updateFormInputsDirection();
-    
-    // Reinitialize Lucide icons
-    lucide.createIcons();
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    } else {
+        console.error('Lucide library not loaded!');
+    }
 }
 
-// Update form placeholders
 function updateFormPlaceholders(t) {
     const placeholders = {
         'donor-name-input': currentLanguage === 'arabic' ? 'أدخل اسمك' : 'Enter your name',
@@ -521,11 +723,12 @@ function updateFormPlaceholders(t) {
         const element = document.getElementById(id);
         if (element) {
             element.placeholder = placeholder;
+        } else {
+            console.warn(`Placeholder element with ID ${id} not found`);
         }
     });
 }
 
-// Update form inputs direction
 function updateFormInputsDirection() {
     const formInputs = [
         'search-input', 'donor-name-input', 'amount-input',
@@ -542,75 +745,87 @@ function updateFormInputsDirection() {
                 element.classList.remove('text-end');
                 element.dir = 'ltr';
             }
+        } else {
+            console.warn(`Input element with ID ${id} not found`);
         }
     });
 }
 
-// Play video in modal
-function playVideo(videoId, title, description, youtubeUrl, videoFile) {
-    const modal = new bootstrap.Modal(document.getElementById('videoModal'));
+function playVideo(videoId, encodedTitle, encodedVideoUrl) {
+    console.log('Attempting to play video:', { videoId, encodedTitle, encodedVideoUrl });
+    const title = decodeURIComponent(encodedTitle);
+    const videoUrl = decodeURIComponent(encodedVideoUrl);
+
+    const video = videoFiles.find(v => v.id === videoId);
+    if (!video || !video.video_url) {
+        console.error('Video not found or invalid URL:', videoId, videoUrl);
+        alert(translations[currentLanguage].invalid_video_url);
+        return;
+    }
+
+    const videoModal = document.getElementById('videoModal');
     const videoContainer = document.getElementById('video-container');
     const modalTitle = document.getElementById('video-modal-title');
-    const modalDescription = document.getElementById('video-modal-description');
+
+    if (!videoModal || !videoContainer || !modalTitle) {
+        console.error('Modal elements missing:', { videoModal, videoContainer, modalTitle });
+        alert(translations[currentLanguage].invalid_video_url);
+        return;
+    }
+
+    if (typeof bootstrap === 'undefined') {
+        console.error('Bootstrap not loaded!');
+        alert(translations[currentLanguage].invalid_video_url);
+        return;
+    }
+
+    const modal = new bootstrap.Modal(videoModal, { backdrop: 'static', keyboard: false });
     
-    // Set title and description
     modalTitle.textContent = title;
-    modalDescription.textContent = description || '';
-    
-    // Clear previous video
     videoContainer.innerHTML = '';
     
-    if (youtubeUrl && youtubeUrl.trim()) {
-        // YouTube video
-        const videoId = extractYouTubeVideoId(youtubeUrl);
-        if (videoId) {
-            videoContainer.innerHTML = `
+    const ytVideoId = extractYouTubeVideoId(video.video_url);
+    if (ytVideoId) {
+        videoContainer.innerHTML = `
+            <div class="ratio ratio-16x9">
                 <iframe 
-                    src="https://www.youtube.com/embed/${videoId}?autoplay=1" 
+                    src="https://www.youtube.com/embed/${ytVideoId}?autoplay=1&controls=1&rel=0" 
                     frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" 
                     allowfullscreen
                     class="w-100 h-100">
                 </iframe>
-            `;
-        }
-    } else if (videoFile && videoFile.trim()) {
-        // Local video file
-        videoContainer.innerHTML = `
-            <video 
-                controls 
-                autoplay 
-                class="w-100 h-100"
-                style="background: #000;">
-                <source src="/uploads/videos/${videoFile}" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
+            </div>
         `;
+    } else {
+        console.error('Invalid YouTube video ID for URL:', video.video_url);
+        alert(translations[currentLanguage].invalid_video_url);
+        return;
     }
     
     currentVideoModal = modal;
     modal.show();
 }
 
-// Close video modal and stop playback
-function closeVideoModal() {
-    const videoContainer = document.getElementById('video-container');
-    videoContainer.innerHTML = '';
-    currentVideoModal = null;
-}
-
-// Show donation modal
 function showDonationModal() {
-    // Collapse navbar first
+    console.log('Opening donation modal...');
     collapseNavbar();
-    
-    const modal = new bootstrap.Modal(document.getElementById('donationModal'));
-    modal.show();
+    const donationModal = document.getElementById('donationModal');
+    if (donationModal && typeof bootstrap !== 'undefined') {
+        const modal = new bootstrap.Modal(donationModal);
+        modal.show();
+    } else {
+        console.error('Donation modal not found or Bootstrap not loaded!');
+    }
 }
 
-// Handle donation
 async function handleDonation() {
     const form = document.getElementById('donation-form');
+    if (!form) {
+        console.error('Donation form not found!');
+        return;
+    }
+    
     const formData = new FormData(form);
     
     const amount = formData.get('amount');
@@ -621,7 +836,6 @@ async function handleDonation() {
     
     const t = translations[currentLanguage];
     
-    // Validation
     if (!amount || parseInt(amount) < 100) {
         alert(currentLanguage === 'arabic' ? 'يرجى إدخال مبلغ صحيح (الحد الأدنى ₦100)' : 'Please enter a valid amount (minimum ₦100)');
         return;
@@ -633,8 +847,14 @@ async function handleDonation() {
     }
     
     paymentLoading = true;
-    document.getElementById('donate-now-text').textContent = t.processing_payment;
-    document.getElementById('donate-now-btn').disabled = true;
+    const donateBtn = document.getElementById('donate-now-btn');
+    if (donateBtn) {
+        donateBtn.disabled = true;
+    }
+    const donateText = document.getElementById('donate-now-text');
+    if (donateText) {
+        donateText.textContent = t.processing_payment;
+    }
     
     try {
         const reference = `maqari_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -651,8 +871,8 @@ async function handleDonation() {
             },
             callback: function(response) {
                 paymentLoading = false;
-                document.getElementById('donate-now-btn').disabled = false;
-                document.getElementById('donate-now-text').textContent = t.donate_now;
+                if (donateBtn) donateBtn.disabled = false;
+                if (donateText) donateText.textContent = t.donate_now;
                 
                 if (response.status === 'success') {
                     fetch('/api/donations/verify', {
@@ -671,7 +891,10 @@ async function handleDonation() {
                     .then(async (verifyResponse) => {
                         if (verifyResponse.ok) {
                             alert(t.payment_success);
-                            bootstrap.Modal.getInstance(document.getElementById('donationModal')).hide();
+                            const donationModal = document.getElementById('donationModal');
+                            if (donationModal) {
+                                bootstrap.Modal.getInstance(donationModal).hide();
+                            }
                             form.reset();
                         } else {
                             alert('Payment successful but verification failed. Please contact support with reference: ' + response.reference);
@@ -687,8 +910,8 @@ async function handleDonation() {
             },
             onClose: function() {
                 paymentLoading = false;
-                document.getElementById('donate-now-btn').disabled = false;
-                document.getElementById('donate-now-text').textContent = t.donate_now;
+                if (donateBtn) donateBtn.disabled = false;
+                if (donateText) donateText.textContent = t.donate_now;
             }
         };
         
@@ -697,17 +920,20 @@ async function handleDonation() {
         
     } catch (error) {
         paymentLoading = false;
-        document.getElementById('donate-now-btn').disabled = false;
-        document.getElementById('donate-now-text').textContent = t.donate_now;
+        if (donateBtn) donateBtn.disabled = false;
+        if (donateText) donateText.textContent = t.donate_now;
         console.error('Payment initialization error:', error);
         alert(currentLanguage === 'arabic' ? 'فشل في تهيئة الدفع. يرجى المحاولة مرة أخرى أو الاتصال بالدعم.' : 'Failed to initialize payment. Please try again or contact support.');
     }
 }
 
-// Function to collapse the navbar
 function collapseNavbar() {
     const navbarNav = document.querySelector('#navbarNav');
     if (navbarNav && navbarNav.classList.contains('show')) {
-        bootstrap.Collapse.getInstance(navbarNav).hide();
+        if (typeof bootstrap !== 'undefined') {
+            bootstrap.Collapse.getInstance(navbarNav).hide();
+        } else {
+            console.error('Bootstrap not loaded!');
+        }
     }
 }

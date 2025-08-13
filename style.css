@@ -12,6 +12,7 @@
 }
 
 /* Arabic font styling */
+/* Arabic font styling */is
 .arabic {
     font-family: 'Amiri', 'Traditional Arabic', 'Times New Roman', serif;
     direction: rtl;
@@ -46,6 +47,32 @@
 
 .arabic .fs-5 {
     font-size: 1.15rem;
+}
+
+.card.arabic {
+    direction: rtl;
+}
+
+.video-thumbnail {
+    height: 150px;
+    object-fit: cover;
+    width: 100%;
+}
+
+@media (min-width: 992px) {
+    .video-thumbnail {
+        height: 180px;
+    }
+}
+
+.ratio-16x9 iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.card-body {
+    padding: 1rem;
 }
 
 /* RTL support */
