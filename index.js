@@ -217,6 +217,8 @@ app.get('/api/audio', (req, res) => {
       title_english, 
       title_arabic, 
       audio_file, 
+      section,
+      section_arabic,
       date_added,
       updated_at
     FROM audio

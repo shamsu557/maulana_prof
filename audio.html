@@ -24,10 +24,10 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-              <!-- Cancel Button (hidden by default) -->
-        <button class="navbar-cancel d-lg-none" id="navbar-cancel" type="button" style="display: none;">
-            <span>&times;</span> <!-- Times symbol for cancel -->
-        </button>
+            <!-- Cancel Button (hidden by default) -->
+            <button class="navbar-cancel d-lg-none" id="navbar-cancel" type="button" style="display: none;">
+                <span>&times;</span> <!-- Times symbol for cancel -->
+            </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
@@ -89,7 +89,19 @@
             <p class="text-muted fs-5" id="no-audio-text">No audio found matching your search.</p>
         </div>
 
-        <div id="audio-grid" class="row g-4">
+        <!-- Sections View (initially shown) -->
+        <div id="sections-view" class="row g-4">
+            <!-- Sections will be dynamically added here -->
+        </div>
+
+        <!-- Audios View (hidden initially) -->
+        <div id="audios-view" class="d-none">
+            <button id="back-to-sections" class="btn btn-secondary mb-3">
+                <i data-lucide="arrow-left"></i> Back to Sections
+            </button>
+            <div id="audio-grid" class="row g-4">
+                <!-- Audio cards will be dynamically added here -->
+            </div>
         </div>
     </main>
 

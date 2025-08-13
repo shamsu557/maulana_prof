@@ -6,6 +6,8 @@ let currentlyPlaying = null;
 let audioElements = {};
 let paystackLoaded = false;
 let paymentLoading = false;
+let selectedSection = null;
+let sections = [];
 
 // Translations object
 const translations = {
@@ -24,6 +26,7 @@ const translations = {
         play_btn: "Play",
         pause_btn: "Pause",
         download_btn: "Download",
+        back_to_sections: "Back to Sections",
         footer_contact_title: "Contact Information",
         footer_email: "📧 1440shamsusabo@gmail.com",
         footer_phone: "📞 08030909793",
@@ -67,6 +70,7 @@ const translations = {
         play_btn: "تشغيل",
         pause_btn: "إيقاف",
         download_btn: "تحميل",
+        back_to_sections: "العودة إلى الأقسام",
         footer_contact_title: "معلومات الاتصال",
         footer_email: "📧 1440shamsusabo@gmail.com",
         footer_phone: "📞 08030909793",
@@ -118,6 +122,7 @@ function initializeApp() {
 function setupEventListeners() {
     document.getElementById('search-input').addEventListener('input', handleSearch);
     document.getElementById('back-to-top').addEventListener('click', scrollToTop);
+    document.getElementById('back-to-sections').addEventListener('click', showSectionsView);
 
     const toggler = document.querySelector('.navbar-toggler');
     const cancel = document.querySelector('.navbar-cancel');
@@ -196,8 +201,19 @@ async function loadAudio() {
                 const titleB = currentLanguage === 'arabic' ? b.title_arabic : b.title_english;
                 return titleA.localeCompare(titleB, currentLanguage === 'arabic' ? 'ar' : 'en');
             });
-            filteredAudio = [...audioFiles];
-            displayAudio();
+            
+            // Extract unique sections
+            sections = [...new Set(audioFiles.map(audio => audio.section).filter(section => section))];
+            sections.sort((a, b) => {
+                const audioA = audioFiles.find(audio => audio.section === a);
+                const audioB = audioFiles.find(audio => audio.section === b);
+                const nameA = currentLanguage === 'arabic' ? audioA.section_arabic : a;
+                const nameB = currentLanguage === 'arabic' ? audioB.section_arabic : b;
+                return nameA.localeCompare(nameB, currentLanguage === 'arabic' ? 'ar' : 'en');
+            });
+            
+            // Initially show sections
+            displaySections();
         }
     } catch (error) {
         console.error('Error loading audio:', error);
@@ -207,24 +223,89 @@ async function loadAudio() {
     }
 }
 
+// Display sections as clickable cards
+function displaySections() {
+    const sectionsView = document.getElementById('sections-view');
+    const audiosView = document.getElementById('audios-view');
+    const noAudio = document.getElementById('no-audio');
+    
+    sectionsView.classList.remove('d-none');
+    audiosView.classList.add('d-none');
+    noAudio.classList.add('d-none');
+    
+    sectionsView.innerHTML = '';
+    
+    if (sections.length === 0) {
+        sectionsView.innerHTML = `<p class="text-center">${translations[currentLanguage].no_audio_found}</p>`;
+        return;
+    }
+    
+    sections.forEach(section => {
+        const col = document.createElement('div');
+        col.className = 'col-6 col-md-4 col-lg-3 col-xl-2 mb-4';
+        
+        // Find the first audio with this section to get section_arabic
+        const audio = audioFiles.find(a => a.section === section);
+        const sectionName = currentLanguage === 'arabic' ? audio.section_arabic : section;
+        
+        // Escape single quotes in section name for onclick
+        const escapedSection = section.replace(/'/g, "\\'");
+        
+        col.innerHTML = `
+            <div class="card h-100 shadow-sm text-center ${currentLanguage === 'arabic' ? 'arabic' : ''}" onclick="selectSection('${escapedSection}')">
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <h5 class="card-title mb-0">${sectionName}</h5>
+                </div>
+            </div>
+        `;
+        
+        sectionsView.appendChild(col);
+    });
+    
+    lucide.createIcons();
+}
+
+// Handle section selection
+function selectSection(section) {
+    selectedSection = section;
+    filteredAudio = audioFiles.filter(audio => audio.section === section);
+    displayAudio();
+    showAudiosView();
+}
+
+// Show audios view
+function showAudiosView() {
+    document.getElementById('sections-view').classList.add('d-none');
+    document.getElementById('audios-view').classList.remove('d-none');
+    document.getElementById('search-input').value = ''; // Reset search
+}
+
+// Show sections view (back button)
+function showSectionsView() {
+    selectedSection = null;
+    filteredAudio = [];
+    displaySections();
+}
+
 // Display audio
 function displayAudio() {
     const audioGrid = document.getElementById('audio-grid');
     const noAudio = document.getElementById('no-audio');
-
+    
+    audioGrid.innerHTML = '';
+    
     if (filteredAudio.length === 0) {
         showNoAudio();
         return;
     }
-
+    
     noAudio.classList.add('d-none');
-    audioGrid.innerHTML = '';
-
+    
     filteredAudio.forEach(audio => {
         const audioCard = createAudioCard(audio);
         audioGrid.appendChild(audioCard);
     });
-
+    
     lucide.createIcons();
 }
 
@@ -242,31 +323,30 @@ function createAudioCard(audio) {
     const buttonText = isPlaying ? t.pause_btn : t.play_btn;
     const buttonIcon = isPlaying ? 'pause' : 'play';
 
-    const audioImage = audio.image_file || 'maulana.jfif';
+    const audioImage = audio.image_file || 'maulana6.jfif';
 
     col.innerHTML = `
-    <div class="card h-100 shadow-sm audio-card" style="height:200px;">
-        <img src="${audioImage}" class="card-img-top" alt="${title}" 
-             style="height:130px;object-fit:cover;">
-        <div class="card-body text-center d-flex flex-column p-2">
-            <h5 class="card-title mb-1 ${currentLanguage === 'arabic' ? 'arabic' : ''}">${title}</h5>
-            <p class="card-text text-muted small mb-2 ${currentLanguage === 'arabic' ? 'arabic' : ''}">${description || ''}</p>
-            <div class="mt-auto">
-                <div class="d-flex gap-2 justify-content-center">
-                    <button class="btn ${buttonClass} w-50" 
-                            onclick="toggleAudio(${audio.id}, '${audio.audio_file}')">
-                        <i data-lucide="${buttonIcon}" class="me-1"></i>
-                        ${buttonText}
-                    </button>
-                    <a href="${audio.audio_file}" download class="btn btn-primary w-50">
-                        <i data-lucide="download" class="me-1"></i>
-                        ${t.download_btn}
-                    </a>
+        <div class="card h-100 shadow-sm audio-card" style="height:200px;">
+            <img src="${audioImage}" class="card-img-top" alt="${title}" 
+                 style="height:130px;object-fit:cover;">
+            <div class="card-body text-center d-flex flex-column p-2">
+                <h5 class="card-title mb-1 ${currentLanguage === 'arabic' ? 'arabic' : ''}">${title}</h5>
+                <p class="card-text text-muted small mb-2 ${currentLanguage === 'arabic' ? 'arabic' : ''}">${description || ''}</p>
+                <div class="mt-auto">
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button class="btn btn-primary btn-sm flex-fill" onclick="toggleAudio(${audio.id}, '${audio.audio_file}')">
+                            <i data-lucide="${buttonIcon}" class="me-1" style="width: 12px; height: 12px;"></i>
+                            ${buttonText}
+                        </button>
+                        <a href="${audio.audio_file}" download class="btn btn-success btn-sm flex-fill">
+                            <i data-lucide="download" class="me-1" style="width: 12px; height: 12px;"></i>
+                            ${t.download_btn}
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-`;
+    `;
 
     return col;
 }
@@ -286,17 +366,16 @@ function hideLoadingSpinner() {
 function handleSearch(event) {
     const searchTerm = event.target.value.toLowerCase().trim();
     
-    if (!searchTerm) {
-        filteredAudio = [...audioFiles];
-    } else {
-        filteredAudio = audioFiles.filter(audio => {
-            const title = currentLanguage === 'arabic' ? audio.title_arabic : audio.title_english;
-            const description = currentLanguage === 'arabic' ? audio.description_arabic : audio.description_english;
-            return title.toLowerCase().includes(searchTerm) ||
-                   (description && description.toLowerCase().includes(searchTerm));
-        });
-    }
+    if (!selectedSection) return; // Search only works in audios view
     
+    if (!searchTerm) {
+        filteredAudio = audioFiles.filter(audio => audio.section === selectedSection);
+    } else {
+        filteredAudio = audioFiles.filter(audio => audio.section === selectedSection && (
+            (currentLanguage === 'arabic' ? audio.title_arabic : audio.title_english).toLowerCase().includes(searchTerm) ||
+            (currentLanguage === 'arabic' ? audio.description_arabic : audio.description_english || '').toLowerCase().includes(searchTerm)
+        ));
+    }
     displayAudio();
 }
 
@@ -324,7 +403,7 @@ function toggleLanguage() {
     localStorage.setItem('language', currentLanguage);
     updateLanguage();
     
-    // Re-sort and display audio
+    // Re-sort and display
     if (audioFiles.length > 0) {
         audioFiles.sort((a, b) => {
             const titleA = currentLanguage === 'arabic' ? a.title_arabic : a.title_english;
@@ -332,18 +411,14 @@ function toggleLanguage() {
             return titleA.localeCompare(titleB, currentLanguage === 'arabic' ? 'ar' : 'en');
         });
         
-        const searchTerm = document.getElementById('search-input').value.toLowerCase().trim();
-        if (!searchTerm) {
-            filteredAudio = [...audioFiles];
+        if (selectedSection) {
+            // Update filteredAudio for the current section
+            filteredAudio = audioFiles.filter(audio => audio.section === selectedSection);
+            displayAudio();
         } else {
-            filteredAudio = audioFiles.filter(audio => {
-                const title = currentLanguage === 'arabic' ? audio.title_arabic : audio.title_english;
-                const description = currentLanguage === 'arabic' ? audio.description_arabic : audio.description_english;
-                return title.toLowerCase().includes(searchTerm) ||
-                       (description && description.toLowerCase().includes(searchTerm));
-            });
+            // Update sections view
+            displaySections();
         }
-        displayAudio();
     }
 }
 
@@ -368,6 +443,7 @@ function updateLanguage() {
         'loading-text': t.loading_text,
         'loading-audio-text': t.loading_audio,
         'no-audio-text': t.no_audio_found,
+        'back-to-sections': t.back_to_sections,
         'footer-contact-title': t.footer_contact_title,
         'footer-email': t.footer_email,
         'footer-phone': t.footer_phone,
@@ -415,7 +491,7 @@ function updateLanguage() {
     const elementsToStyle = [
         'site-title', 'audio-title', 'search-input', 'donation-modal-title', 
         'donation-modal-subtitle', 'donation-message', 'footer-contact-title', 
-        'footer-quick-links', 'footer-support-title'
+        'footer-quick-links', 'footer-support-title', 'back-to-sections'
     ];
     
     elementsToStyle.forEach(id => {
@@ -499,7 +575,7 @@ function toggleAudio(audioId, audioFile) {
             });
             audioElement.addEventListener('error', (e) => {
                 console.error('Audio playback error:', e);
-                alert('Error playing audio file. Please try again.');
+                alert(translations[currentLanguage].no_audio_found);
                 setCurrentlyPlaying(null);
             });
             audioElements[audioId] = audioElement;
@@ -509,7 +585,7 @@ function toggleAudio(audioId, audioFile) {
             setCurrentlyPlaying(audioId);
         }).catch((error) => {
             console.error('Audio play error:', error);
-            alert('Error playing audio file. Please try again.');
+            alert(translations[currentLanguage].no_audio_found);
         });
     }
 }
@@ -517,7 +593,7 @@ function toggleAudio(audioId, audioFile) {
 // Set currently playing audio and update UI
 function setCurrentlyPlaying(audioId) {
     currentlyPlaying = audioId;
-    displayAudio(); // Refresh the display to update button states
+    displayAudio();
 }
 
 // Show donation modal
@@ -549,7 +625,7 @@ async function handleDonation() {
     }
     
     if (!paystackLoaded || !window.PaystackPop) {
-        alert(currentLanguage === 'arabic' ? 'نظام الدفع غير جاهز. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.' : 'Payment system is not ready. Please check your internet connection and try again.');
+        alert(t.paystack_loading);
         return;
     }
     
@@ -621,6 +697,6 @@ async function handleDonation() {
         document.getElementById('donate-now-btn').disabled = false;
         document.getElementById('donate-now-text').textContent = t.donate_now;
         console.error('Payment initialization error:', error);
-        alert(currentLanguage === 'arabic' ? 'فشل في تهيئة الدفع. يرجى المحاولة مرة أخرى أو الاتصال بالدعم.' : 'Failed to initialize payment. Please try again or contact support.');
+        alert(t.payment_failed);
     }
 }

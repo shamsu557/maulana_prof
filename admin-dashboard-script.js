@@ -126,6 +126,7 @@ async function loadAudioData() {
   }
 }
 
+
 // Load video data
 async function loadVideoData() {
   try {
@@ -244,7 +245,6 @@ async function handleDeleteBook(bookId) {
 }
 
 // Update audio table
-// Update audio table
 function updateAudioTable() {
   const tbody = document.getElementById('audio-table-body');
   tbody.innerHTML = '';
@@ -254,6 +254,8 @@ function updateAudioTable() {
     row.innerHTML = `
       <td>${item.title_english}</td>
       <td class="arabic">${item.title_arabic}</td>
+      <td>${item.section}</td>
+      <td class="arabic">${item.section_arabic}</td>
       <td>
         <button class="btn btn-danger btn-sm" onclick="handleDeleteAudio(${item.id})">
           <i data-lucide="trash-2"></i> Delete
@@ -265,8 +267,6 @@ function updateAudioTable() {
 
   lucide.createIcons();
 }
-
-
 // Delete single audio
 async function handleDeleteAudio(audioId) {
   if (!confirm('Are you sure you want to delete this audio?')) return;
@@ -394,6 +394,7 @@ function getButtonColor(type) {
 }
 
 // Generate form fields
+// Generate form fields
 function generateFormFields(type) {
   switch (type) {
     case 'book':
@@ -429,6 +430,82 @@ function generateFormFields(type) {
           <div class="col-md-6">
             <label class="form-label">Title (Arabic)</label>
             <input type="text" class="form-control arabic" name="title_arabic" required>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Section (English)</label>
+            <select class="form-control" name="section" required>
+              <option value="">Select Section</option>
+              <option value="Sahihul Bukhari">Sahihul Bukhari</option>
+              <option value="Sahihul Bukhari (Bita Tare Da Malamai)">Sahihul Bukhari (Bita Tare Da Malamai)</option>
+              <option value="Sahihul Muslim">Sahihul Muslim</option>
+              <option value="Muwadda Malik">Muwadda Malik</option>
+              <option value="Attajul Jamiu Lil usul">Attajul Jamiu Lil usul</option>
+              <option value="Bulughul Maram">Bulughul Maram</option>
+              <option value="Ihya'u Ulumiddeen">Ihya'u Ulumiddeen</option>
+              <option value="Jam'ul Jawami'i Fi Ilmi Usulil Fiqh">Jam'ul Jawami'i Fi Ilmi Usulil Fiqh</option>
+              <option value="Lectures">Lectures</option>
+              <option value="Discussions">Discussions</option>
+              <option value="Majlisi">Majlisi</option>
+              <option value="Questions & Answers 2013">Questions & Answers 2013</option>
+              <option value="Questions & Answers 2014">Questions & Answers 2014</option>
+              <option value="Questions & Answers 2015">Questions & Answers 2015</option>
+              <option value="Questions & Answers 2016">Questions & Answers 2016</option>
+              <option value="Questions & Answers 2017">Questions & Answers 2017</option>
+              <option value="Questions & Answers 2018">Questions & Answers 2018</option>
+              <option value="Questions & Answers 2019">Questions & Answers 2019</option>
+              <option value="Tafseer 2013">Tafseer 2013</option>
+              <option value="Tafseer 2014">Tafseer 2014</option>
+              <option value="Tafseer 2015">Tafseer 2015</option>
+              <option value="Tafseer 2016">Tafseer 2016</option>
+              <option value="Tafseer 2017">Tafseer 2017</option>
+              <option value="Tafseer 2018">Tafseer 2018</option>
+              <option value="Tafseer 2019">Tafseer 2019</option>
+              <option value="Tafseer 2020">Tafseer 2020</option>
+              <option value="Tafseer 2021">Tafseer 2021</option>
+              <option value="Tafseer 2022">Tafseer 2022</option>
+              <option value="Tafseer 2023">Tafseer 2023</option>
+              <option value="Tafseer 2024">Tafseer 2024</option>
+              <option value="Tafseer 2025">Tafseer 2025</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Section (Arabic)</label>
+            <select class="form-control arabic" name="section_arabic" required>
+              <option value="">اختر القسم</option>
+              <option value="صحيح البخاري">صحيح البخاري</option>
+              <option value="صحيح البخاري (بيت التاريخ مع المعلمين)">صحيح البخاري (بيت التاريخ مع المعلمين)</option>
+              <option value="صحيح مسلم">صحيح مسلم</option>
+              <option value="مواضع مالك">مواضع مالك</option>
+              <option value="التاج الجامع للأصول">التاج الجامع للأصول</option>
+              <option value="بلوغ المرام">بلوغ المرام</option>
+              <option value="إحياء علوم الدين">إحياء علوم الدين</option>
+              <option value="جامع الجوامع في علم أصول الفقه">جامع الجوامع في علم أصول الفقه</option>
+              <option value="محاضرات">محاضرات</option>
+              <option value="مناقشات">مناقشات</option>
+              <option value="مجلسي">مجلسي</option>
+              <option value="أسئلة وأجوبة 2013">أسئلة وأجوبة 2013</option>
+              <option value="أسئلة وأجوبة 2014">أسئلة وأجوبة 2014</option>
+              <option value="أسئلة وأجوبة 2015">أسئلة وأجوبة 2015</option>
+              <option value="أسئلة وأجوبة 2016">أسئلة وأجوبة 2016</option>
+              <option value="أسئلة وأجوبة 2017">أسئلة وأجوبة 2017</option>
+              <option value="أسئلة وأجوبة 2018">أسئلة وأجوبة 2018</option>
+              <option value="أسئلة وأجوبة 2019">أسئلة وأجوبة 2019</option>
+              <option value="تفسير 2013">تفسير 2013</option>
+              <option value="تفسير 2014">تفسير 2014</option>
+              <option value="تفسير 2015">تفسير 2015</option>
+              <option value="تفسير 2016">تفسير 2016</option>
+              <option value="تفسير 2017">تفسير 2017</option>
+              <option value="تفسير 2018">تفسير 2018</option>
+              <option value="تفسير 2019">تفسير 2019</option>
+              <option value="تفسير 2020">تفسير 2020</option>
+              <option value="تفسير 2021">تفسير 2021</option>
+              <option value="تفسير 2022">تفسير 2022</option>
+              <option value="تفسير 2023">تفسير 2023</option>
+              <option value="تفسير 2024">تفسير 2024</option>
+              <option value="تفسير 2025">تفسير 2025</option>
+            </select>
           </div>
         </div>
         <div class="mb-3">
@@ -552,7 +629,6 @@ async function handleAddItem() {
     alert(`Error adding ${currentModalType}`);
   }
 }
-
 // Show delete modal
 function showDeleteModal(type, id, name) {
   deleteItem = { type, id, name };

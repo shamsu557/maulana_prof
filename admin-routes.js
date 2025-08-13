@@ -136,7 +136,7 @@ router.post(
     { name: 'audio_file' } // match HTML input name
   ]),
   async (req, res) => {
-    const { title_english, title_arabic } = req.body;
+    const { title_english, title_arabic, section, section_arabic } = req.body;
     const audioFile = req.files['audio_file'][0].filename;
     const dateAdded = new Date();
 
@@ -148,16 +148,25 @@ router.post(
       }
 
       const sqlInsertAudio = `
-        INSERT INTO audio (title_english, title_arabic, audio_file, date_added)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO audio (title_english, title_arabic, audio_file, section, section_arabic, date_added)
+        VALUES (?, ?, ?, ?, ?, ?)
       `;
-      db.query(sqlInsertAudio, [title_english, title_arabic, audioFile, dateAdded], (err) => {
+      db.query(sqlInsertAudio, [title_english, title_arabic, audioFile, section, section_arabic, dateAdded], (err) => {
         if (err) throw err;
         res.status(201).json({ message: 'Audio added successfully!' });
       });
     });
   }
 );
+
+// GET all audio
+router.get('/audio', (req, res) => {
+  const sqlSelectAudio = 'SELECT * FROM audio ORDER BY date_added DESC';
+  db.query(sqlSelectAudio, (err, result) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    res.json(result);
+  });
+});
 
 // DELETE audio by ID
 router.delete('/audio/:id', async (req, res) => {
@@ -181,7 +190,7 @@ router.delete('/audio/:id', async (req, res) => {
       const path = require('path');
 
       try {
-        if (audio_file) fs.unlinkSync(path.join(__dirname, '../uploads', audio_file));
+        if (audio_file) fs.unlinkSync(path.join(__dirname, '../Uploads', audio_file));
       } catch (fileErr) {
         console.warn('Error deleting audio file:', fileErr.message);
       }
