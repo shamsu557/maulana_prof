@@ -42,7 +42,11 @@
                         <button class="nav-link sidebar-btn" data-section="videos">
                             <i data-lucide="video" class="me-2"></i> Videos
                         </button>
-            
+                        <button class="nav-link sidebar-btn" data-section="transactions">
+                            <i data-lucide="dollar-sign" class="me-2"></i> Transactions
+                        </button>
+          
+      
                         <button class="nav-link sidebar-btn" data-section="messages">
                              <i data-lucide="mail" class="me-2"></i> Messages
                         </button>
@@ -59,7 +63,7 @@
                             <h4>Welcome, Admin</h4>
                         </div>
                         <div class="row">
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-3 mb-3">
                                 <div class="card">
                                     <div class="card-body text-center">
                                         <h5 class="card-title">Total Books</h5>
@@ -67,7 +71,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-3 mb-3">
                                 <div class="card">
                                     <div class="card-body text-center">
                                         <h5 class="card-title">Total Audio</h5>
@@ -75,7 +79,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-3 mb-3">
                                 <div class="card">
                                     <div class="card-body text-center">
                                         <h5 class="card-title">Total Videos</h5>
@@ -83,7 +87,14 @@
                                     </div>
                                 </div>
                             </div>
-                           
+                            <div class="col-md-3 mb-3">
+                                <div class="card">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Current Balance</h5>
+                                        <h3 id="current-balance">₦0</h3>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="mt-4">
                             <h4>Generate Financial Report</h4>
@@ -98,6 +109,7 @@
                                 </div>
                                 <div class="col-md-4 mb-3 d-flex align-items-end">
                                     <button class="btn btn-primary me-2" onclick="generateReport()">Generate Report</button>
+                                    <button class="btn btn-danger" onclick="showAddModal('expense')">Add Expense</button>
                                 </div>
                             </div>
                         </div>
@@ -155,6 +167,25 @@
                                     </tr>
                                 </thead>
                                 <tbody id="videos-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="transactions-section" class="content-section">
+                        <h2>Financial Transactions</h2>
+                        <p>Current Balance: <span id="balance-display">₦0</span></p>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Description</th>
+                                        <th>Donor/Reference</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactions-table-body"></tbody>
                             </table>
                         </div>
                     </div>

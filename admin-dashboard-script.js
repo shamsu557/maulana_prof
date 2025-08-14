@@ -27,6 +27,7 @@ async function initializeApp() {
     await checkAuth();
     setupEventListeners();
     await loadData(); // Load data after auth and event listeners
+    await loadDashboardCounts();  // New counts function
   } catch (error) {
     console.error('Initialization error:', error);
     showDashboard(); // Fallback to show dashboard for testing
@@ -72,12 +73,15 @@ function goToLogin() {
 function setupEventListeners() {
   // Sidebar navigation
   document.querySelectorAll('.sidebar-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
+    btn.addEventListener('click', function (e) {
+      e.preventDefault(); // Prevent default link behavior
       const section = this.dataset.section;
       switchSection(section);
+      if (section === 'messages') {
+        loadMessages(); // Load messages when messages section is selected
+      }
     });
   });
-  // Navbar toggle is irrelevant; skip setupNavbarToggle
 }
 
 // Switch sections
@@ -91,13 +95,41 @@ function switchSection(section) {
   // Hide all sections
   document.querySelectorAll('.content-section').forEach(sec => {
     sec.classList.remove('active');
+    sec.classList.add('d-none'); // Ensure consistency with dashboard
   });
 
   // Show selected section
   document.getElementById(`${section}-section`).classList.add('active');
+  document.getElementById(`${section}-section`).classList.remove('d-none');
 
   currentSection = section;
 }
+
+async function loadDashboardCounts() {
+  try {
+    // Books
+    const booksRes = await fetch(`${API_BASE_URL}/api/books`);
+    const books = await booksRes.json();
+    document.getElementById('total-books').textContent = books.length;
+
+    // Audio
+    const audioRes = await fetch(`${API_BASE_URL}/api/audio`);
+    const audio = await audioRes.json();
+    document.getElementById('total-audio').textContent = audio.length;
+
+    // Videos
+    const videosRes = await fetch(`${API_BASE_URL}/api/videos`);
+    const videos = await videosRes.json();
+    document.getElementById('total-videos').textContent = videos.length;
+
+  } catch (err) {
+    console.error('Error loading dashboard counts:', err);
+    document.getElementById('total-books').textContent = 0;
+    document.getElementById('total-audio').textContent = 0;
+    document.getElementById('total-videos').textContent = 0;
+  }
+}
+
 //load audio data
 async function loadAudioData() {
   try {
@@ -125,7 +157,6 @@ async function loadAudioData() {
     document.getElementById('total-audio').textContent = 0;
   }
 }
-
 
 // Load video data
 async function loadVideoData() {
@@ -267,6 +298,7 @@ function updateAudioTable() {
 
   lucide.createIcons();
 }
+
 // Delete single audio
 async function handleDeleteAudio(audioId) {
   if (!confirm('Are you sure you want to delete this audio?')) return;
@@ -336,31 +368,31 @@ async function handleDeleteVideo(videoId) {
   }
 }
 
-// Update transactions table
-function updateTransactionsTable() {
-  const tbody = document.getElementById('transactions-table-body');
-  tbody.innerHTML = '';
-  transactions.forEach(transaction => {
-    const row = document.createElement('tr');
-    const date = new Date(transaction.created_at || transaction.date).toLocaleDateString();
-    const isIncome = transaction.type === 'income';
+// // Update transactions table
+// function updateTransactionsTable() {
+//   const tbody = document.getElementById('transactions-table-body');
+//   tbody.innerHTML = '';
+//   transactions.forEach(transaction => {
+//     const row = document.createElement('tr');
+//     const date = new Date(transaction.created_at || transaction.date).toLocaleDateString();
+//     const isIncome = transaction.type === 'income';
 
-    row.innerHTML = `
-      <td>${date}</td>
-      <td>
-        <span class="badge ${isIncome ? 'bg-success' : 'bg-danger'}">
-          ${isIncome ? 'Income' : 'Expense'}
-        </span>
-      </td>
-      <td>${transaction.description}</td>
-      <td>${transaction.donor_name || transaction.reference || '-'}</td>
-      <td class="fw-bold ${isIncome ? 'text-success' : 'text-danger'}">
-        ${isIncome ? '+' : '-'}₦${parseFloat(transaction.amount).toLocaleString()}
-      </td>
-    `;
-    tbody.appendChild(row);
-  });
-}
+//     row.innerHTML = `
+//       <td>${date}</td>
+//       <td>
+//         <span class="badge ${isIncome ? 'bg-success' : 'bg-danger'}">
+//           ${isIncome ? 'Income' : 'Expense'}
+//         </span>
+//       </td>
+//       <td>${transaction.description}</td>
+//       <td>${transaction.donor_name || transaction.reference || '-'}</td>
+//       <td class="fw-bold ${isIncome ? 'text-success' : 'text-danger'}">
+//         ${isIncome ? '+' : '-'}₦${parseFloat(transaction.amount).toLocaleString()}
+//       </td>
+//     `;
+//     tbody.appendChild(row);
+//   });
+// }
 
 // Show add modal
 function showAddModal(type) {
@@ -633,7 +665,7 @@ async function handleAddItem() {
 function showDeleteModal(type, id, name) {
   deleteItem = { type, id, name };
 
-  const modal = new bootstrap.Modal(document.getElementById(' demodal'));
+  const modal = new bootstrap.Modal(document.getElementById('demodal'));
   document.getElementById('delete-item-name').textContent = name;
   document.getElementById('delete-password').value = '';
 
@@ -777,78 +809,70 @@ function generateReport() {
   }
 }
 
-// Sidebar "Messages" button click
-document.querySelector('[data-section="messages"]').addEventListener('click', () => {
-    // Hide all other content sections
-    document.querySelectorAll('.content-section').forEach(sec => sec.classList.add('d-none'));
-
-    // Show the messages section
-    document.getElementById('messages-section').classList.remove('d-none');
-
-    // Load the messages
-    loadMessages();
-});
-
 // Fetch and display messages
 function loadMessages() {
-    fetch('/api/admin/messages', { cache: 'no-store' }) // force fresh data
-        .then(res => res.json())
-        .then(messages => {
-            const tbody = document.getElementById('messages-table-body');
-            tbody.innerHTML = '';
-
-            if (messages.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="text-center">No messages found</td></tr>`;
-                return;
-            }
-
-            messages.forEach(msg => {
-                const tr = document.createElement('tr');
-                tr.classList.add('table-danger'); // All red since we now delete instead of treat
-
-                tr.innerHTML = `
-                    <td>${msg.name}</td>
-                    <td>${msg.email}</td>
-                    <td>${msg.phone || ''}</td>
-                    <td>${msg.category || ''}</td>
-                    <td>${msg.subject || ''}</td>
-                    <td>${msg.message}</td>
-                    <td>${new Date(msg.created_at).toLocaleString()}</td>
-                    <td>
-                        <button 
-                            class="btn btn-sm btn-danger"
-                            onclick="deleteMessage(${msg.id}, this)"
-                        >
-                            Treated ? Delete
-                        </button>
-                    </td>
-                `;
-
-                tbody.appendChild(tr);
-            });
-        })
-        .catch(err => {
-            console.error('Error loading messages:', err);
-        });
+  fetch(`${API_BASE_URL}/api/admin/messages`, { cache: 'no-store', credentials: 'include' })
+    .then(res => res.json())
+    .then(messages => {
+      const tbody = document.getElementById('messages-table-body');
+      tbody.innerHTML = '';
+      if (messages.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center">No messages found</td></tr>`;
+        return;
+      }
+      messages.forEach(msg => {
+        const tr = document.createElement('tr');
+        tr.classList.add('table-danger');
+        tr.innerHTML = `
+          <td>${msg.name}</td>
+          <td>${msg.email}</td>
+          <td>${msg.phone || ''}</td>
+          <td>${msg.category || ''}</td>
+          <td>${msg.subject || ''}</td>
+          <td>${msg.message}</td>
+          <td>${new Date(msg.created_at).toLocaleString()}</td>
+          <td>
+            <button 
+              class="btn btn-sm btn-danger"
+              onclick="deleteMessage(${msg.id}, this)"
+            >
+              Treated ? Delete
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    })
+    .catch(err => {
+      console.error('Error loading messages:', err);
+      const tbody = document.getElementById('messages-table-body');
+      tbody.innerHTML = `<tr><td colspan="8" class="text-center">Error loading messages</td></tr>`;
+    });
 }
 
 // Delete message
 function deleteMessage(id, btn) {
-    if (!confirm('Are you sure you want to delete this message?')) return;
-
-    fetch(`/api/admin/messages/${id}`, { method: 'DELETE' })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                btn.closest('tr').remove();
-            } else {
-                console.error('Failed to delete message:', data.error);
-            }
-        })
-        .catch(err => {
-            console.error('Error deleting message:', err);
-        });
+  if (!confirm('Are you sure you want to delete this message?')) return;
+  fetch(`${API_BASE_URL}/api/admin/messages/${id}`, { 
+    method: 'DELETE',
+    credentials: 'include'
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        btn.closest('tr').remove();
+        loadMessages(); // Refresh messages list
+      } else {
+        console.error('Failed to delete message:', data.error);
+        alert('Failed to delete message');
+      }
+    })
+    .catch(err => {
+      console.error('Error deleting message:', err);
+      alert('Error deleting message');
+    });
 }
+
 // Handle logout
 async function handleLogout() {
   try {
@@ -856,7 +880,7 @@ async function handleLogout() {
       method: 'POST',
       credentials: 'include',
     });
-    window.location.href = '/admin-login.html';
+    window.location.href = '/.html';
   } catch (error) {
     console.error('Logout error:', error);
     window.location.href = '/index.html';

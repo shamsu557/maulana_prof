@@ -280,6 +280,29 @@ app.get('/videos/:fileName', (req, res) => {
   res.sendFile(filePath);
 });
 
+//book counts
+app.get('/api/books', (req, res) => {
+  db.query('SELECT * FROM books', (err, results) => {
+    if (err) return res.status(500).json([]);
+    res.json(results);
+  });
+});
+
+//audio counts
+app.get('/api/audio', (req, res) => {
+  db.query('SELECT * FROM audio', (err, results) => {
+    if (err) return res.status(500).json([]);
+    res.json(results);
+  });
+});
+//video counts
+app.get('/api/videos', (req, res) => {
+  db.query('SELECT * FROM videos', (err, results) => {
+    if (err) return res.status(500).json([]);
+    res.json(results);
+  });
+});
+
 // Admin dashboard (protected)
 app.get('/admin-dashboard.html', isAdminAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, 'admin-dashboard.html'));
