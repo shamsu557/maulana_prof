@@ -880,7 +880,7 @@ async function handleLogout() {
       method: 'POST',
       credentials: 'include',
     });
-    window.location.href = '/.html';
+    window.location.href = '/index.html';
   } catch (error) {
     console.error('Logout error:', error);
     window.location.href = '/index.html';
