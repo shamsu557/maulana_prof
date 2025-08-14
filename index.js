@@ -9,7 +9,6 @@ const fs = require('fs');
 const nodemailer = require("nodemailer");
 const app = express();
 const saltRounds = 10; // bcrypt salt rounds
-
 // Session setup
 app.use(session({
   secret: 'YBdLcGmLbdsYrw9S4PNnaCW3SuHhZ6M0',
